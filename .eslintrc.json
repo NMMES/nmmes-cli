@@ -1,0 +1,23 @@
+{
+    "env": {
+        "es6": true,
+        "node": true
+    },
+    "extends": ["eslint:recommended"],
+    "parser": "babel-eslint",
+    "rules": {
+        "strict": 0
+    },
+    "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        }
+    },
+    "rules": {
+        "no-console": "off",
+        "no-duplicate-case": "off",
+        "no-unused-vars": "warn"
+    }
+}

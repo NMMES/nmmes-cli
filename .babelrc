@@ -1,0 +1,7 @@
+{
+    "sourceMaps": true,
+    "presets": [
+        "es2016",
+        "stage-2"
+    ],
+}
