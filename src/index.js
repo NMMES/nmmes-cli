@@ -12,7 +12,7 @@ Promise.config({
 import {
     Video,
     Logger
-} from 'h265ize-backend';
+} from 'nmmes-backend';
 
 import Package from '../package.json';
 import Screen from './screen.js';
@@ -31,12 +31,12 @@ import {
 } from 'stream';
 import Path from 'path';
 
-const heAudio = require('h265ize-module-he-audio');
-const encoder = require('h265ize-module-encoder');
-const normalizer = require('h265ize-module-normalize');
-const autocrop = require('h265ize-module-autocrop');
-const stats = require('h265ize-module-stats');
-const sample = require('h265ize-module-sample');
+const heAudio = require('nmmes-module-he-audio');
+const encoder = require('nmmes-module-encoder');
+const normalizer = require('nmmes-module-normalize');
+const autocrop = require('nmmes-module-autocrop');
+const stats = require('nmmes-module-stats');
+const sample = require('nmmes-module-sample');
 
 let screen, videos = [],
     currentVideoIdx = 0;
@@ -56,7 +56,7 @@ if (!Options.simple) {
     }
 
     screen.key(['escape', 'q', 'C-c'], function(ch, key) {
-        if (++killCounter > 9) {
+        if (++killCounter > 2) {
             Logger.error('Kill signal receieved more than 9 times, forcing process death... DIE ALREADY!');
             screen.destroy();
             process.kill(-process.pid, 'SIGKILL');
@@ -74,14 +74,55 @@ function createVideos(paths) {
     return new Promise(function(resolve, reject) {
         Logger.debug(`Videos found [${paths.length}]:\n\t-`, paths.join('\n\t-'));
         for (let path of paths) {
-            let output = Path.format({
+
+            let modules = [];
+            if (Options.normalizeLevel >= 1) {
+                modules.push(new autocrop());
+            }
+            if (Options.normalizeLevel >= 2) {
+                modules.push(new normalizer());
+            }
+            if (Options.heAudio) {
+                modules.push(new heAudio({
+                    encodeLossless: Options.forceHeAudio
+                }));
+            }
+            modules.push(new encoder({
+                defaults: {
+                    video: {
+                        'c:{POS}': Options.videoCodec,
+                        'crf': Options.quality,
+                        'preset': Options.preset
+                    }
+                }
+            }));
+            if (Options.stats) {
+                if (Options.stats === true)
+                    modules.push(new stats());
+                else
+                    modules.push(new stats({
+                        output: Options.stats
+                    }));
+            }
+            if (Options.sample) {
+                modules.push(new sample({
+                    length: Options.previewLength
+                }));
+            }
+
+            let tempOutput = Path.format({
                 dir: Options.tempDirectory,
                 name: Path.parse(path).name,
                 ext: '.' + Options.outputFormat
             });
-            if (!Options.overwrite)
-                if (fs.existsSync(output)) {
-                    Logger.warn('Output for', chalk.bold(Path.basename(path)), 'already exists at', chalk.bold(output) + '. Skipping...');
+            let finalOutput = Path.format({
+                    dir: Path.resolve(Options.destination, Path.dirname(Path.relative(Options._[0], path))),
+                    name: Path.parse(path).name,
+                    ext: '.' + Options.outputFormat
+                });
+            if (!Options.delete)
+                if (fs.existsSync(finalOutput)) {
+                    Logger.warn('Output for', chalk.bold(Path.basename(path)), 'already exists at', chalk.bold(finalOutput) + '. Skipping...');
                     continue;
                 }
             videos.push(new Video({
@@ -89,16 +130,10 @@ function createVideos(paths) {
                     path
                 },
                 output: {
-                    path: output
+                    path: tempOutput
                 },
-                modules: [new normalizer(), new heAudio(), new autocrop(), new encoder({
-                    defaults: {
-                        video: {
-                            'c:{POS}': 'libx264',
-                            'preset': 'ultrafast'
-                        }
-                    }
-                }), new stats(), new sample()]
+                modules,
+                finalOutput
             }));
         }
         resolve(videos);
@@ -136,11 +171,9 @@ function createVideoList(videos) {
                     item.state = 'failed';
                     item.error = err.message.split('\n')[0];
                 } else {
-                    fs.move(video.output.path, Path.format({
-                            dir: Path.resolve(Options.destination, Path.dirname(Path.relative(Options._[0], video.input.path))),
-                            name: video.output.name,
-                            ext: '.' + Options.outputFormat
-                        })).then(() => {
+                    Logger.info('Moving to final destination...');
+                    fs.move(video.output.path, video.finalOutput, {overwrite: Options.delete}).then(() => {
+                            Logger.info('Move complete.');
                             item.state = 'completed';
                         })
                         .catch((err) => {
@@ -207,7 +240,7 @@ utils.getVideoFiles(Options._[0])
     .catch((err) => {
         // Logger.error(err);
     })
-    .finally(() => {
+    .then(() => {
         if (screen)
             screen.statusFinished();
     });

@@ -9,14 +9,43 @@ const userSettings = optional(Path.resolve(process.cwd(), Package.name + '-setti
 let args = yargs
     .usage('Usage: $0 [options] file|directory')
     .options({
-    'version': {
-        describe: 'Displays version information.',
-        group: 'General:'
-    },
-    'help': {
-        describe: 'Displays help page.',
-        group: 'General:'
-    },
+        'version': {
+            describe: 'Displays version information.',
+            group: 'General:'
+        },
+        'help': {
+            describe: 'Displays help page.',
+            group: 'General:'
+        },
+        'g': {
+            alias: 'temp-directory',
+            default: userSettings['temp-directory'] || Path.resolve(os.tmpdir(), Package.name),
+            describe: 'Folder where files are stored during encoding.',
+            type: 'string',
+            normalize: true,
+            group: 'General:'
+        },
+        'v': {
+            alias: 'verbose',
+            default: userSettings['verbose'] || false,
+            describe: 'Enables verbose mode. Prints extra information.',
+            type: 'boolean',
+            group: 'General:'
+        },
+        'o': {
+            alias: 'overwrite',
+            default: userSettings['override'] || false,
+            describe: 'Allows conversion of videos that are already encoded by the hevc codec.',
+            type: 'boolean',
+            group: 'General:'
+        },
+        'p': {
+            alias: 'preview',
+            default: userSettings['preview'] || false,
+            describe: 'Only encode a preview of the video starting at middle of video. See -l/--preview-length for more info.',
+            type: 'boolean',
+            group: 'General:'
+        },
         'd': {
             alias: 'destination',
             default: userSettings['destination'] || Path.resolve(process.cwd(), 'h265'),
@@ -40,13 +69,6 @@ let args = yargs
             type: 'string',
             group: 'General:'
         },
-        'as-preset': {
-            default: userSettings['as-preset'] || 'none',
-            describe: 'My personal presets. Descriptions of each preset\'s use and function can be found on the github page.',
-            choices: ['anime', 'testing-ssim', 'none'],
-            type: 'string',
-            group: 'Video:'
-        },
         'n': {
             alias: 'native-language',
             default: userSettings['native-language'] || '',
@@ -62,6 +84,21 @@ let args = yargs
             type: 'string',
             group: 'General:'
         },
+        'c': {
+            alias: 'video-codec',
+            default: userSettings['video-codec'] || 'libx265',
+            describe: 'Video codec to encode the video to.',
+            choices: ['libx264', 'libx265'],
+            type: 'string',
+            group: 'Video:'
+        },
+        'as-preset': {
+            default: userSettings['as-preset'] || 'none',
+            describe: 'My personal presets. Descriptions of each preset\'s use and function can be found on the github page.',
+            choices: ['anime', 'testing-ssim', 'none'],
+            type: 'string',
+            group: 'Video:'
+        },
         'x': {
             alias: 'extra-options',
             default: userSettings['extra-options'] || '',
@@ -74,20 +111,13 @@ let args = yargs
             default: userSettings['quality'] || 19,
             describe: 'Sets the qp quality target',
             type: 'number',
-            group: 'General:'
+            group: 'Video:'
         },
         'video-bitrate': {
             default: userSettings['video-bitrate'] || 0,
             describe: 'Sets the video bitrate, set to 0 to use qp rate control instead of a target bitrate.',
             type: 'number',
             group: 'Video:'
-        },
-        'l': {
-            alias: 'preview-length',
-            default: userSettings['preview-length'] || 30000,
-            describe: 'Milliseconds to encode in preview mode. Max is half the length of input video.',
-            type: 'number',
-            group: 'Advanced:'
         },
         'accurate-timestamps': {
             default: userSettings['accurate-timestamps'] || false,
@@ -113,44 +143,11 @@ let args = yargs
             type: 'boolean',
             group: 'Audio:'
         },
-        'o': {
-            alias: 'overwrite',
-            default: userSettings['override'] || false,
-            describe: 'Allows conversion of videos that are already encoded by the hevc codec.',
-            type: 'boolean',
-            group: 'General:'
-        },
-        'p': {
-            alias: 'preview',
-            default: userSettings['preview'] || false,
-            describe: 'Only encode a preview of the video starting at middle of video. See -l/--preview-length for more info.',
-            type: 'boolean',
-            group: 'General:'
-        },
         'multi-pass': {
             default: userSettings['mutli-pass'] || 0,
             describe: 'Enable multiple passes by the encoder. Must be greater than 1.',
             type: 'number',
             group: 'Video:'
-        },
-        'stats': {
-            default: userSettings['stats'] || false,
-            describe: 'Output a stats file containing stats for each video converted.',
-            type: 'boolean',
-            group: 'Advanced:'
-        },
-        'v': {
-            alias: 'verbose',
-            default: userSettings['verbose'] || false,
-            describe: 'Enables verbose mode. Prints extra information.',
-            type: 'boolean',
-            group: 'General:'
-        },
-        'watch': {
-            default: userSettings['watch'] || '',
-            describe: 'Watches a directory for new video files to be converted.',
-            type: 'string',
-            group: 'Advanced:'
         },
         'bitdepth': {
             default: userSettings['bitdepth'] || 0,
@@ -168,7 +165,7 @@ let args = yargs
             default: userSettings['normalize-level'] || 2,
             describe: 'Level of normalization to be applied. See https://github.com/FallingSnow/h265ize/issues/56 for more info.',
             type: 'number',
-            group: 'Advanced:'
+            group: 'Video:'
         },
         'scale': {
             default: userSettings['scale'] || false,
@@ -176,24 +173,35 @@ let args = yargs
             type: 'number',
             group: 'Video:'
         },
+        'stats': {
+            default: userSettings['stats'] || false,
+            describe: 'Output a stats file containing stats to this destination.',
+            type: 'string',
+            group: 'Advanced:'
+        },
         'debug': {
             default: userSettings['debug'] || false,
             describe: 'Enables debug mode. Prints extra debugging information.',
             type: 'boolean',
             group: 'Advanced:'
         },
-        'g': {
-            alias: 'temp-directory',
-            default: userSettings['temp-directory'] || Path.resolve(os.tmpdir(), Package.name),
-            describe: 'Folder where files are stored during encoding.',
-            type: 'string',
-            normalize: true,
-            group: 'General:'
-        },
         'delete': {
             default: userSettings['delete'] || false,
             describe: 'Delete source after encoding is complete and replaces it with new encode. [DANGER]',
             type: 'boolean',
+            group: 'Advanced:'
+        },
+        'l': {
+            alias: 'preview-length',
+            default: userSettings['preview-length'] || 30000,
+            describe: 'Milliseconds to encode in preview mode. Max is half the length of input video.',
+            type: 'number',
+            group: 'Advanced:'
+        },
+        'watch': {
+            default: userSettings['watch'] || '',
+            describe: 'Watches a directory for new video files to be converted.',
+            type: 'string',
             group: 'Advanced:'
         },
         'simple': {

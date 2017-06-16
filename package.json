@@ -1,7 +1,7 @@
 {
-  "name": "h265ize-cli",
+  "name": "nmmes-cli",
   "version": "0.0.1",
-  "description": "A command line interface front end for h265ize.",
+  "description": "A command line interface front end for nmmes-backend.",
   "author": "Ayrton Sparling",
   "license": "LGPL-3.0",
   "engines": {
@@ -13,7 +13,7 @@
     "build": "webpack --define process.env.NODE_ENV=\"production\" --env=production --progress",
     "profile": "node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt"
   },
-  "main": "dist.js",
+  "main": "nmmes-cli.js",
   "dependencies": {
     "blessed": "^0.1.81",
     "bluebird": "^3.5.0",

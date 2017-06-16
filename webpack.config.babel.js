@@ -27,7 +27,7 @@ module.exports = function(env) {
             library: packageJson.name,
             libraryTarget: "umd",
             publicPath: '',
-            filename: 'dist.js'
+            filename: packageJson.name+'.js'
         },
 
         externals: [nodeExternals()],
