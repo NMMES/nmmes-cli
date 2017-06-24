@@ -26,12 +26,11 @@ const defaults = {
     }
 };
 
-let program = blessed.program();
-program.hideCursor();
-
 export default class Screen extends blessed.screen {
     title = Package.name;
     constructor() {
+        let program = blessed.program();
+        program.hideCursor()
         super({
             program,
             fastCSR: true,
