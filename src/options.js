@@ -6,7 +6,7 @@ import optional from 'optional';
 
 const userSettings = optional(Path.resolve(process.cwd(), Package.name + '-settings.json')) || {};
 
-let args = yargs
+let args = yargs(['--help'])
     .usage('Usage: $0 [options] file|directory')
     .options({
         'version': {
@@ -212,21 +212,22 @@ let args = yargs
         },
         'test': {
             default: userSettings['test'] || false,
-            describe: 'Puts h265ize in test mode. No files will be encoded.',
+            describe: 'Puts nmmes in test mode. No files will be encoded.',
             type: 'boolean',
             group: 'Advanced:'
         },
     })
+    .help()
     .argv;
 
 if (args.help) {
     console.log('Package:', Package.name, '\t', 'Version:', Package.version);
     console.log('Description:', Package.description);
     yargs.showHelp();
-    process.exit(0);
+    process.exit();
 } else if (args.version) {
     console.log(Package.name, Package.version);
-    process.exit(0);
+    process.exit();
 }
 
 export default args;

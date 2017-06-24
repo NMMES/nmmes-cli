@@ -82,11 +82,15 @@ function createVideos(paths) {
             if (Options.normalizeLevel >= 2) {
                 modules.push(new normalizer());
             }
+
+            // HE Audio
             if (Options.heAudio) {
                 modules.push(new heAudio({
                     encodeLossless: Options.forceHeAudio
                 }));
             }
+
+            // Encoder
             modules.push(new encoder({
                 defaults: {
                     video: {
@@ -96,6 +100,8 @@ function createVideos(paths) {
                     }
                 }
             }));
+
+            // Stats
             if (Options.stats) {
                 if (Options.stats === true)
                     modules.push(new stats());
@@ -104,6 +110,8 @@ function createVideos(paths) {
                         output: Options.stats
                     }));
             }
+
+            // Sample
             if (Options.sample) {
                 modules.push(new sample({
                     length: Options.previewLength
@@ -116,10 +124,10 @@ function createVideos(paths) {
                 ext: '.' + Options.outputFormat
             });
             let finalOutput = Path.format({
-                    dir: Path.resolve(Options.destination, Path.dirname(Path.relative(Options._[0], path))),
-                    name: Path.parse(path).name,
-                    ext: '.' + Options.outputFormat
-                });
+                dir: Path.resolve(Options.destination, Path.dirname(Path.relative(Options._[0], path))),
+                name: Path.parse(path).name,
+                ext: '.' + Options.outputFormat
+            });
             if (!Options.delete)
                 if (fs.existsSync(finalOutput)) {
                     Logger.warn('Output for', chalk.bold(Path.basename(path)), 'already exists at', chalk.bold(finalOutput) + '. Skipping...');
@@ -172,7 +180,9 @@ function createVideoList(videos) {
                     item.error = err.message.split('\n')[0];
                 } else {
                     Logger.info('Moving to final destination...');
-                    fs.move(video.output.path, video.finalOutput, {overwrite: Options.delete}).then(() => {
+                    fs.move(video.output.path, video.finalOutput, {
+                            overwrite: Options.delete
+                        }).then(() => {
                             Logger.info('Move complete.');
                             item.state = 'completed';
                         })
@@ -208,15 +218,6 @@ function loop(i = 0) {
 }
 
 let killCounter = 0;
-
-
-// Provide usage information if no path was provided
-if (!Options._[0]) {
-    console.log('Package:', Package.name, '\t', 'Version:', Package.version);
-    console.log('Description:', Package.description);
-    yargs.usage();
-    process.exit();
-}
 
 // Set log level to trace if debug is enabled
 if (Options.debug) {

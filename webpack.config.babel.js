@@ -10,7 +10,7 @@ fs.ensureDirSync(tempDir);
 let symLink = path.join(tempDir, 'node_modules');
 
 module.exports = function(env) {
-    env = env ? env : 'dev';
+    env = env ? env : 'development';
 
     if (env === 'development' && !fs.existsSync(symLink))
         fs.symlinkSync(path.resolve(__dirname, 'node_modules'), symLink, 'dir');
@@ -27,7 +27,9 @@ module.exports = function(env) {
             library: packageJson.name,
             libraryTarget: "umd",
             publicPath: '',
-            filename: packageJson.name+'.js'
+            filename: packageJson.name + '.js',
+            devtoolModuleFilenameTemplate: '[absolute-resource-path]',
+            devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]'
         },
 
         externals: [nodeExternals()],

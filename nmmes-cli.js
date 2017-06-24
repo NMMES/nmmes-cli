@@ -3,13 +3,13 @@
 require("source-map-support").install();
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("path"), require("chalk"), require("yargs"), require("blessed"), require("bluebird"), require("cli-spinners"), require("figures"), require("fs"), require("fs-extra"), require("h265ize-backend"), require("h265ize-module-autocrop"), require("h265ize-module-encoder"), require("h265ize-module-he-audio"), require("h265ize-module-normalize"), require("h265ize-module-sample"), require("h265ize-module-stats"), require("lodash.merge"), require("lodash.throttle"), require("mime"), require("node-noop"), require("optional"), require("os"), require("recursive-readdir"), require("stream"));
+		module.exports = factory(require("path"), require("chalk"), require("yargs"), require("blessed"), require("bluebird"), require("cli-spinners"), require("figures"), require("fs"), require("fs-extra"), require("lodash.merge"), require("lodash.throttle"), require("mime"), require("nmmes-backend"), require("nmmes-module-autocrop"), require("nmmes-module-encoder"), require("nmmes-module-he-audio"), require("nmmes-module-normalize"), require("nmmes-module-sample"), require("nmmes-module-stats"), require("node-noop"), require("optional"), require("os"), require("recursive-readdir"), require("stream"));
 	else if(typeof define === 'function' && define.amd)
-		define(["path", "chalk", "yargs", "blessed", "bluebird", "cli-spinners", "figures", "fs", "fs-extra", "h265ize-backend", "h265ize-module-autocrop", "h265ize-module-encoder", "h265ize-module-he-audio", "h265ize-module-normalize", "h265ize-module-sample", "h265ize-module-stats", "lodash.merge", "lodash.throttle", "mime", "node-noop", "optional", "os", "recursive-readdir", "stream"], factory);
+		define(["path", "chalk", "yargs", "blessed", "bluebird", "cli-spinners", "figures", "fs", "fs-extra", "lodash.merge", "lodash.throttle", "mime", "nmmes-backend", "nmmes-module-autocrop", "nmmes-module-encoder", "nmmes-module-he-audio", "nmmes-module-normalize", "nmmes-module-sample", "nmmes-module-stats", "node-noop", "optional", "os", "recursive-readdir", "stream"], factory);
 	else if(typeof exports === 'object')
-		exports["nmmes-cli"] = factory(require("path"), require("chalk"), require("yargs"), require("blessed"), require("bluebird"), require("cli-spinners"), require("figures"), require("fs"), require("fs-extra"), require("h265ize-backend"), require("h265ize-module-autocrop"), require("h265ize-module-encoder"), require("h265ize-module-he-audio"), require("h265ize-module-normalize"), require("h265ize-module-sample"), require("h265ize-module-stats"), require("lodash.merge"), require("lodash.throttle"), require("mime"), require("node-noop"), require("optional"), require("os"), require("recursive-readdir"), require("stream"));
+		exports["nmmes-cli"] = factory(require("path"), require("chalk"), require("yargs"), require("blessed"), require("bluebird"), require("cli-spinners"), require("figures"), require("fs"), require("fs-extra"), require("lodash.merge"), require("lodash.throttle"), require("mime"), require("nmmes-backend"), require("nmmes-module-autocrop"), require("nmmes-module-encoder"), require("nmmes-module-he-audio"), require("nmmes-module-normalize"), require("nmmes-module-sample"), require("nmmes-module-stats"), require("node-noop"), require("optional"), require("os"), require("recursive-readdir"), require("stream"));
 	else
-		root["nmmes-cli"] = factory(root["path"], root["chalk"], root["yargs"], root["blessed"], root["bluebird"], root["cli-spinners"], root["figures"], root["fs"], root["fs-extra"], root["h265ize-backend"], root["h265ize-module-autocrop"], root["h265ize-module-encoder"], root["h265ize-module-he-audio"], root["h265ize-module-normalize"], root["h265ize-module-sample"], root["h265ize-module-stats"], root["lodash.merge"], root["lodash.throttle"], root["mime"], root["node-noop"], root["optional"], root["os"], root["recursive-readdir"], root["stream"]);
+		root["nmmes-cli"] = factory(root["path"], root["chalk"], root["yargs"], root["blessed"], root["bluebird"], root["cli-spinners"], root["figures"], root["fs"], root["fs-extra"], root["lodash.merge"], root["lodash.throttle"], root["mime"], root["nmmes-backend"], root["nmmes-module-autocrop"], root["nmmes-module-encoder"], root["nmmes-module-he-audio"], root["nmmes-module-normalize"], root["nmmes-module-sample"], root["nmmes-module-stats"], root["node-noop"], root["optional"], root["os"], root["recursive-readdir"], root["stream"]);
 })(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_3__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_11__, __WEBPACK_EXTERNAL_MODULE_12__, __WEBPACK_EXTERNAL_MODULE_13__, __WEBPACK_EXTERNAL_MODULE_14__, __WEBPACK_EXTERNAL_MODULE_15__, __WEBPACK_EXTERNAL_MODULE_16__, __WEBPACK_EXTERNAL_MODULE_17__, __WEBPACK_EXTERNAL_MODULE_18__, __WEBPACK_EXTERNAL_MODULE_19__, __WEBPACK_EXTERNAL_MODULE_20__, __WEBPACK_EXTERNAL_MODULE_21__, __WEBPACK_EXTERNAL_MODULE_22__, __WEBPACK_EXTERNAL_MODULE_23__, __WEBPACK_EXTERNAL_MODULE_24__, __WEBPACK_EXTERNAL_MODULE_25__, __WEBPACK_EXTERNAL_MODULE_26__, __WEBPACK_EXTERNAL_MODULE_27__, __WEBPACK_EXTERNAL_MODULE_28__, __WEBPACK_EXTERNAL_MODULE_29__, __WEBPACK_EXTERNAL_MODULE_30__, __WEBPACK_EXTERNAL_MODULE_31__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -92,13 +92,24 @@ module.exports = {
 	"engines": {
 		"node": ">=6.4.0"
 	},
+	"bin": {
+		"nmmes": "nmmes-cli.js"
+	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "webpack --env=development --watch",
 		"build": "webpack --define process.env.NODE_ENV=\"production\" --env=production --progress",
-		"profile": "node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt"
+		"profile": "node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt",
+		"preversion": "npm test",
+		"version": "git add .",
+		"postversion": "git push && git push --tags",
+		"patch-release": "npm version patch && npm publish"
 	},
 	"main": "nmmes-cli.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/NMMES/nmmes-cli.git"
+	},
 	"dependencies": {
 		"blessed": "^0.1.81",
 		"bluebird": "^3.5.0",
@@ -111,6 +122,13 @@ module.exports = {
 		"mime": "^1.3.6",
 		"moment": "^2.18.1",
 		"moment-duration-format": "^1.3.0",
+		"nmmes-backend": "^0.0.1",
+		"nmmes-module-autocrop": "^0.0.1",
+		"nmmes-module-encoder": "^0.0.1",
+		"nmmes-module-he-audio": "^0.0.1",
+		"nmmes-module-normalize": "^0.0.1",
+		"nmmes-module-sample": "^0.0.1",
+		"nmmes-module-stats": "^0.0.1",
 		"node-noop": "^1.0.0",
 		"optional": "^0.1.3",
 		"pidusage": "^1.1.5",
@@ -147,7 +165,7 @@ module.exports = require("path");
 
 "use strict";
 /* unused harmony export isVideo */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_mime__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_mime__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_mime___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_mime__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_path__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_path___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_path__);
@@ -181,8 +199,8 @@ module.exports = require("yargs");
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bluebird___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bluebird__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_h265ize_backend___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_h265ize_backend__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_nmmes_backend___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_nmmes_backend__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__package_json__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__package_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__package_json__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__screen_js__ = __webpack_require__(8);
@@ -224,12 +242,12 @@ __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a.config({
 
 
 
-const heAudio = __webpack_require__(20);
-const encoder = __webpack_require__(19);
-const normalizer = __webpack_require__(21);
-const autocrop = __webpack_require__(18);
-const stats = __webpack_require__(23);
-const sample = __webpack_require__(22);
+const heAudio = __webpack_require__(23);
+const encoder = __webpack_require__(22);
+const normalizer = __webpack_require__(24);
+const autocrop = __webpack_require__(21);
+const stats = __webpack_require__(26);
+const sample = __webpack_require__(25);
 
 let screen,
     videos = [],
@@ -237,21 +255,21 @@ let screen,
 
 if (!__WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */].simple) {
     screen = new __WEBPACK_IMPORTED_MODULE_3__screen_js__["a" /* default */]();
-    screen.logStream = __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].stream = new __WEBPACK_IMPORTED_MODULE_10_stream__["PassThrough"]();
+    screen.logStream = __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].stream = new __WEBPACK_IMPORTED_MODULE_10_stream__["PassThrough"]();
     console.oldLog = console.log;
     console.oldError = console.error;
     console.log = function () {
         console.oldLog.apply(console, arguments);
-        __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].log.apply(__WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"], arguments);
+        __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].log.apply(__WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"], arguments);
     };
     console.error = function () {
         console.oldError.apply(console, arguments);
-        __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].error.apply(__WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"], arguments);
+        __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].error.apply(__WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"], arguments);
     };
 
     screen.key(['escape', 'q', 'C-c'], function (ch, key) {
         if (++killCounter > 2) {
-            __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].error('Kill signal receieved more than 9 times, forcing process death... DIE ALREADY!');
+            __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].error('Kill signal receieved more than 9 times, forcing process death... DIE ALREADY!');
             screen.destroy();
             process.kill(-process.pid, 'SIGKILL');
         }
@@ -266,7 +284,7 @@ if (!__WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */].simple) {
 
 function createVideos(paths) {
     return new __WEBPACK_IMPORTED_MODULE_0_bluebird___default.a(function (resolve, reject) {
-        __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].debug(`Videos found [${paths.length}]:\n\t-`, paths.join('\n\t-'));
+        __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].debug(`Videos found [${paths.length}]:\n\t-`, paths.join('\n\t-'));
         for (let path of paths) {
 
             let modules = [];
@@ -312,10 +330,10 @@ function createVideos(paths) {
                 ext: '.' + __WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */].outputFormat
             });
             if (!__WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */].delete) if (__WEBPACK_IMPORTED_MODULE_9_fs_extra___default.a.existsSync(finalOutput)) {
-                __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].warn('Output for', __WEBPACK_IMPORTED_MODULE_7_chalk___default.a.bold(__WEBPACK_IMPORTED_MODULE_11_path___default.a.basename(path)), 'already exists at', __WEBPACK_IMPORTED_MODULE_7_chalk___default.a.bold(finalOutput) + '. Skipping...');
+                __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].warn('Output for', __WEBPACK_IMPORTED_MODULE_7_chalk___default.a.bold(__WEBPACK_IMPORTED_MODULE_11_path___default.a.basename(path)), 'already exists at', __WEBPACK_IMPORTED_MODULE_7_chalk___default.a.bold(finalOutput) + '. Skipping...');
                 continue;
             }
-            videos.push(new __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Video"]({
+            videos.push(new __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Video"]({
                 input: {
                     path
                 },
@@ -361,9 +379,9 @@ function createVideoList(videos) {
                     item.state = 'failed';
                     item.error = err.message.split('\n')[0];
                 } else {
-                    __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].info('Moving to final destination...');
+                    __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].info('Moving to final destination...');
                     __WEBPACK_IMPORTED_MODULE_9_fs_extra___default.a.move(video.output.path, video.finalOutput, { overwrite: __WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */].delete }).then(() => {
-                        __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].info('Move complete.');
+                        __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].info('Move complete.');
                         item.state = 'completed';
                     }).catch(err => {
                         item.state = 'failed';
@@ -397,25 +415,17 @@ function loop(i = 0) {
 
 let killCounter = 0;
 
-// Provide usage information if no path was provided
-if (!__WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */]._[0]) {
-    console.log('Package:', __WEBPACK_IMPORTED_MODULE_2__package_json___default.a.name, '\t', 'Version:', __WEBPACK_IMPORTED_MODULE_2__package_json___default.a.version);
-    console.log('Description:', __WEBPACK_IMPORTED_MODULE_2__package_json___default.a.description);
-    __WEBPACK_IMPORTED_MODULE_8_yargs___default.a.usage();
-    process.exit();
-}
-
 // Set log level to trace if debug is enabled
 if (__WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */].debug) {
-    __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].setLevel('trace');
+    __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].setLevel('trace');
 }
 
 // Do processing
-__WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].info('Locating video file(s) at', __WEBPACK_IMPORTED_MODULE_7_chalk___default.a.bold(__WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */]._[0]) + '.');
+__WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].info('Locating video file(s) at', __WEBPACK_IMPORTED_MODULE_7_chalk___default.a.bold(__WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */]._[0]) + '.');
 __WEBPACK_IMPORTED_MODULE_6__utils__["a" /* getVideoFiles */](__WEBPACK_IMPORTED_MODULE_5__options_js__["a" /* default */]._[0]).then(createVideos).then(createVideoList).then(list => {
     if (screen) screen.videoList = list;
 }).then(loop).then(() => {
-    __WEBPACK_IMPORTED_MODULE_1_h265ize_backend__["Logger"].info('All videos completed processing!');
+    __WEBPACK_IMPORTED_MODULE_1_nmmes_backend__["Logger"].info('All videos completed processing!');
 }).catch(err => {
     // Logger.error(err);
 }).then(() => {
@@ -431,7 +441,7 @@ __WEBPACK_IMPORTED_MODULE_6__utils__["a" /* getVideoFiles */](__WEBPACK_IMPORTED
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_cli_spinners___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_cli_spinners__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_figures__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_figures___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_figures__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_throttle__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_throttle__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_throttle___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_throttle__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_chalk__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_chalk___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_chalk__);
@@ -761,7 +771,7 @@ let args = __WEBPACK_IMPORTED_MODULE_3_yargs___default.a.usage('Usage: $0 [optio
     },
     'test': {
         default: userSettings['test'] || false,
-        describe: 'Puts h265ize in test mode. No files will be encoded.',
+        describe: 'Puts nmmes in test mode. No files will be encoded.',
         type: 'boolean',
         group: 'Advanced:'
     }
@@ -777,6 +787,14 @@ if (args.help) {
     process.exit(0);
 }
 
+// Provide usage information if no path was provided
+if (!args._[0]) {
+    console.log('Package:', __WEBPACK_IMPORTED_MODULE_2__package_json___default.a.name, '\t', 'Version:', __WEBPACK_IMPORTED_MODULE_2__package_json___default.a.version);
+    console.log('Description:', __WEBPACK_IMPORTED_MODULE_2__package_json___default.a.description);
+    __WEBPACK_IMPORTED_MODULE_3_yargs___default.a.showHelp();
+    process.exit();
+}
+
 /* harmony default export */ __webpack_exports__["a"] = (args);
 
 /***/ }),
@@ -788,7 +806,7 @@ if (args.help) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_blessed___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_blessed__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__package_json__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__package_json___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__package_json__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_merge__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_merge__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash_merge___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_merge__);
 
 
@@ -1047,61 +1065,61 @@ module.exports = require("fs-extra");
 /* 17 */
 /***/ (function(module, exports) {
 
-module.exports = require("h265ize-backend");
+module.exports = require("lodash.merge");
 
 /***/ }),
 /* 18 */
 /***/ (function(module, exports) {
 
-module.exports = require("h265ize-module-autocrop");
+module.exports = require("lodash.throttle");
 
 /***/ }),
 /* 19 */
 /***/ (function(module, exports) {
 
-module.exports = require("h265ize-module-encoder");
+module.exports = require("mime");
 
 /***/ }),
 /* 20 */
 /***/ (function(module, exports) {
 
-module.exports = require("h265ize-module-he-audio");
+module.exports = require("nmmes-backend");
 
 /***/ }),
 /* 21 */
 /***/ (function(module, exports) {
 
-module.exports = require("h265ize-module-normalize");
+module.exports = require("nmmes-module-autocrop");
 
 /***/ }),
 /* 22 */
 /***/ (function(module, exports) {
 
-module.exports = require("h265ize-module-sample");
+module.exports = require("nmmes-module-encoder");
 
 /***/ }),
 /* 23 */
 /***/ (function(module, exports) {
 
-module.exports = require("h265ize-module-stats");
+module.exports = require("nmmes-module-he-audio");
 
 /***/ }),
 /* 24 */
 /***/ (function(module, exports) {
 
-module.exports = require("lodash.merge");
+module.exports = require("nmmes-module-normalize");
 
 /***/ }),
 /* 25 */
 /***/ (function(module, exports) {
 
-module.exports = require("lodash.throttle");
+module.exports = require("nmmes-module-sample");
 
 /***/ }),
 /* 26 */
 /***/ (function(module, exports) {
 
-module.exports = require("mime");
+module.exports = require("nmmes-module-stats");
 
 /***/ }),
 /* 27 */
