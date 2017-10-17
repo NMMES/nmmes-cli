@@ -1,2 +1,2 @@
-export * from './isVideo.js';
-export * from './getVideoFiles.js';
+export * from './video.js';
+export * from './profile.js';

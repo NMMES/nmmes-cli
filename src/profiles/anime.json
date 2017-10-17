@@ -1,0 +1,15 @@
+{
+    "version": 1,
+    "moduleOptions": {
+        "nmmes-module-encoder": {
+            "defaults": {
+                "video": {
+                    "pixel_format": "yuv420p",
+                    "preset": "medium"
+                }
+            }
+        }
+    },
+    "preset": "medium",
+    "heAudio": true
+}

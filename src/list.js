@@ -1,14 +1,18 @@
 import cliSpinners from 'cli-spinners';
 import figures from 'figures';
-import throttle from 'lodash.throttle';
+import {
+    throttle
+} from 'lodash';
 import chalk from 'chalk';
-import {noop} from 'node-noop';
+import {
+    noop
+} from 'node-noop';
 
 const THROTTLE = 80;
 
 export class Item {
     _state = 'pending'
-    _error = ''
+    _status = ''
     _open = false
     output = ''
     onUpdate = noop
@@ -36,16 +40,20 @@ export class Item {
         this.render();
     }
     set error(err) {
-        this._error = chalk.red('- ' + err.trim());
+        this._status = chalk.red('- ' + err.trim());
         this.render();
     }
-    render = throttle(() => {
-        this.output = `${this.icon} ${this.title} ${this._error}`;
+    set status(status) {
+        this._status = chalk.green('- ' + status.trim());
+        this.render();
+    }
+    render() {
+        this.output = `${this.icon} ${this.title} ${this._status}`;
         if (this.content && (this._state === 'active' || this._state === 'failed' || this._open === true)) {
             this.output += '\n   ' + this.content.output.replace(/\n/g, '\n   ');
         }
         this.onUpdate();
-    }, THROTTLE)
+    }
     iconFrame = 0;
     get icon() {
         let icon = '';
@@ -60,6 +68,9 @@ export class Item {
                 break;
             case 'failed':
                 icon = figures.cross;
+                break;
+            case 'warn':
+                icon = figures.warning;
                 break;
             default:
                 icon = '-';

@@ -1,5 +1,8 @@
 {
     "sourceMaps": true,
+    "plugins": [
+        "lodash"
+    ],
     "presets": [
         "es2016",
         "stage-2"
