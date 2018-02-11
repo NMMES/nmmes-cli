@@ -12,8 +12,17 @@ let symLink = path.join(tempDir, 'node_modules');
 module.exports = function(env) {
     env = env ? env : 'development';
 
+    const output = env === 'production' ? path.resolve(__dirname, 'dist') : path.join(tempDir);
+
     if (env === 'development' && !fs.existsSync(symLink))
         fs.symlinkSync(path.resolve(__dirname, 'node_modules'), symLink, 'dir');
+
+    if (env === 'production') {
+        const packageJsonOutput = path.join(output, 'package.json');
+        let json = Object.assign({}, packageJson);
+        json.main = json.name + '.js';
+        fs.writeFileSync(packageJsonOutput, JSON.stringify(json));
+    }
 
     return {
         target: 'async-node',
@@ -23,7 +32,7 @@ module.exports = function(env) {
         ],
 
         output: {
-            path: env === 'production' ? path.resolve(__dirname, 'dist') : path.join(tempDir),
+            path: output,
             library: packageJson.name,
             libraryTarget: "umd",
             publicPath: '',
