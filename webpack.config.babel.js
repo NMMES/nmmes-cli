@@ -58,6 +58,9 @@ module.exports = function(env) {
         },
 
         plugins: ([
+                new webpack.EnvironmentPlugin({
+                    NODE_ENV: env
+                }),
                 new webpack.BannerPlugin({
                     banner: 'require("source-map-support").install();',
                     raw: true

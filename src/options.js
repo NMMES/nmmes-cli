@@ -3,7 +3,7 @@ import os from 'os';
 import Package from '../package.json';
 import yargs from 'yargs';
 import gitVer from 'git-rev-sync';
-import fs from 'fs';
+import fs from 'fs-extra';
 import requireg from 'requireg';
 import bluebird from 'bluebird';
 import npmi from 'npmi';
@@ -12,6 +12,7 @@ import {
     merge
 } from 'lodash';
 import {
+    Module,
     Logger
 } from 'nmmes-backend';
 
@@ -157,13 +158,28 @@ async function requireModule(name) {
     try {
         return requireg(path);
     } catch (e) {
-        Logger.info(`Attempting to install ${name}`);
+        Logger.trace(`Attempting to link ${name}.`);
+        if (process.env.NODE_ENV === 'development' && await linkModule(name, moduleDir)) {
+            Logger.trace(`Module linked!`);
+            return requireg(path);
+        }
+        Logger.info(`Attempting to install ${name}.`);
         await npmip({
             path: moduleDir,
-            name
+            name: `${name}@${Module.MODULE_VERSION}`
         });
         return requireg(path);
     }
+}
+
+async function linkModule(name, moduleDir) {
+    const linkPath = Path.join(os.homedir(), '.config/yarn/link', name);
+    if (await fs.pathExists(linkPath)) {
+        await fs.ensureDir(Path.join(moduleDir, 'node_modules'));
+        await fs.symlink(linkPath, Path.join(moduleDir, 'node_modules', name));
+        return true;
+    }
+    return false;
 }
 
 async function extractModuleOptions(modules) {
@@ -264,22 +280,6 @@ async function getProfile(profileLocation) {
 //         group: 'General:'
 //     },
 //
-//     'n': {
-//         alias: 'native-language',
-//         default: normalizer.defaults().language,
-//         describe: 'The native language used to select default audio and subtitles. You may use 3 letter or 2 letter ISO 639-2 Alpha-3/Alpha-2 codes or the full language name. Examples: [eng|en|English|jpn|ja|Japanese]',
-//         type: 'string',
-//         group: 'General:'
-//     },
-
-//     'c': {
-//         alias: 'video-codec',
-//         default: encoder.defaults().defaults.video['c:{POS}'],
-//         describe: 'Video codec to encode the video to.',
-//         choices: ['libx264', 'libx265'],
-//         type: 'string',
-//         group: 'Video:'
-//     },
 //     'profile': {
 //         default: 'none',
 //         describe: 'My personal presets. Descriptions of each preset\'s use and function can be found on the github wiki.',
@@ -293,13 +293,6 @@ async function getProfile(profileLocation) {
 //     //     type: 'string',
 //     //     group: 'Advanced:'
 //     // },
-//     'q': {
-//         alias: 'quality',
-//         default: 19,
-//         describe: 'Sets the qp quality target',
-//         type: 'number',
-//         group: 'Video:'
-//     },
 //     // 'video-bitrate': {
 //     //     default: 0,
 //     //     describe: 'Sets the video bitrate, set to 0 to use qp rate control instead of a target bitrate.',
@@ -327,12 +320,6 @@ async function getProfile(profileLocation) {
 //     'normalize-level': {
 //         default: 2,
 //         describe: 'Level of normalization to be applied. See https://github.com/FallingSnow/h265ize/issues/56 for more info.',
-//         type: 'number',
-//         group: 'Video:'
-//     },
-//     'scale': {
-//         default: 0,
-//         describe: 'Width videos should be scaled to. Videos will always maintain original aspect ratio. [Examples: 720, 480]',
 //         type: 'number',
 //         group: 'Video:'
 //     },

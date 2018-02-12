@@ -15,7 +15,7 @@
         "test": "npm run build && npm run update-submodules && mocha-webpack --ui tdd test/cli.spec.js",
         "dev": "webpack --env=development --watch",
         "update-submodules": "git submodule foreach git pull origin master",
-        "dist": "webpack --define process.env.NODE_ENV=\"production\" --env=production --progress",
+        "dist": "webpack --env=production --progress",
         "build": "npm run dist && npm run pack",
         "pack": "pkg -t latest-linux-x64,latest-win-x64 ./dist/package.json --out-path build",
         "profile": "node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt",
