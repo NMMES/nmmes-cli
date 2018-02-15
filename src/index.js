@@ -1,14 +1,11 @@
-import loadOptions from './options.js';
-import chalk from 'chalk';
 import {
     Video,
     Logger
 } from 'nmmes-backend';
+import loadOptions from './options.js';
+import chalk from 'chalk';
 import Path from 'path';
 import fs from 'fs-extra';
-
-// Make sure log level is at default info
-// Logger.setLevel('info');
 
 let STOPREQ = false;
 
@@ -27,15 +24,15 @@ process.on('SIGINT', () => STOPREQ = true);
     let args = options.args,
         modules = options.modules;
 
-    if (options.args.debug)
-        Logger.setLevel('trace');
-
     Logger.trace('Options:', options.args);
 
-    let videos = (await getVideoPaths(args._[0])).reduce((arr, path) => {
+    let videos = [];
+    for (let path of await getVideoPaths(args._[0])) {
+
         const outputBase = Path.basename(path, Path.extname(path)) + '.' + args.outputFormat;
         const outputPath = Path.resolve(args.tempDirectory, outputBase);
-        arr.push(new Video({
+
+        videos.push(new Video({
             input: {
                 path
             },
@@ -54,14 +51,26 @@ process.on('SIGINT', () => STOPREQ = true);
                 return new moduleClass(moduleOptions);
             })
         }));
-        return arr;
-    }, []);
+    }
 
+    if (args.s.length) {
+        for (const idx in videos) {
+            const vid = videos[idx];
+            await vid._initialize();
+            const codecIdx = args.s.indexOf(vid.input.metadata[0].format.video_codec);
+            if (~codecIdx) {
+                Logger.log(`Removing "${vid.input.path}" from queue because it has video codec ${chalk.bold(args.s[codecIdx])}.`);
+                videos.splice(idx, 1);
+            }
+        }
+    }
 
+    if (videos.length < 1)
+        return Logger.warn("No videos found.");
 
     if (videos.length > 1)
         Logger.info('Videos found:\n\t-', videos.map((vid) => {
-            return chalk.yellow(Path.relative(options._[0], vid.input.path));
+            return chalk.yellow(Path.relative(args._[0], vid.input.path));
         }).join('\n\t- '));
 
     for (let v of videos) {
@@ -69,15 +78,22 @@ process.on('SIGINT', () => STOPREQ = true);
             await v.run();
 
             if (await fs.exists(v.output.path)) {
-                const relativeDirToInput = Path.dirname(Path.relative(options._[0], v.input.path));
-                const relativeDestinationDir = Path.resolve(options.destination, relativeDirToInput);
-                const destination = Path.resolve(relativeDestinationDir, Path.basename(v.output.path));
+                let destination;
+                if (args.delete) {
+                    Logger.log(`Removing ${chalk.bold(v.input.path)}...`);
+                    await fs.remove(v.input.path);
+                    destination = Path.join(Path.dirname(v.input.path), Path.basename(v.output.path))
+                } else {
+                    const relativeDirToInput = Path.dirname(Path.relative(args._[0], v.input.path));
+                    const relativeDestinationDir = Path.resolve(args.destination, relativeDirToInput);
+                    destination = Path.resolve(relativeDestinationDir, Path.basename(v.output.path));
+                }
 
-                Logger.trace(`Creating destination directory ${relativeDestinationDir}.`);
-                await fs.ensureDir(relativeDestinationDir);
+                Logger.trace(`Creating destination directory ${Path.dirname(destination)}.`);
+                await fs.ensureDir(Path.dirname(destination));
 
-                Logger.debug(`Moving ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}... Wait for completion message.`);
-                fs.move(v.output.path, destination).then(() => Logger.debug(`Moved ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}.`), err => {
+                Logger.log(`Moving ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}... Wait for completion message.`);
+                fs.move(v.output.path, destination).then(() => Logger.log(`Moved ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}.`), err => {
                     throw err;
                 });
             }
@@ -89,7 +105,7 @@ process.on('SIGINT', () => STOPREQ = true);
         }
     }
 
-    Logger.info('Processing finished.');
+    Logger.info('All videos processed.');
 })();
 
 import bluebird from 'bluebird';
@@ -113,7 +129,7 @@ export async function getVideoPaths(path) {
     }
 }
 
-const SUPPORTED_EXTENSIONS = ['.m2ts'];
+const SUPPORTED_EXTENSIONS = ['.m2ts', '.mts'];
 
 export function isVideo(path) {
     const ext = Path.extname(path);

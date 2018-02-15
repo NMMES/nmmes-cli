@@ -5,6 +5,7 @@ import yargs from 'yargs';
 import gitVer from 'git-rev-sync';
 import fs from 'fs-extra';
 import requireg from 'requireg';
+import chalk from 'chalk';
 import bluebird from 'bluebird';
 import npmi from 'npmi';
 const npmip = bluebird.promisify(npmi);
@@ -84,6 +85,13 @@ const cliSpecificOptions = {
         type: 'string',
         group: 'General:'
     },
+    's': {
+        alias: 'skip-video-codec',
+        default: [],
+        describe: 'Skips videos already encoded with a specific video codecs.',
+        type: 'array',
+        group: 'General:'
+    },
 };
 
 export function getVersion() {
@@ -111,14 +119,28 @@ export default async function load() {
         .usage('Usage: $0 [options] file|directory')
         .options(cliSpecificOptions).argv;
 
+    if (cliArgs.debug) {
+        Logger.setLevel('trace');
+    }
+
     let modules = await loadModules(cliArgs.modules);
     let options = await extractModuleOptions(modules);
 
-    // TODO: Profile doesn't work
-    if (cliArgs.profile)
-        Object.assign(cliArgs, await getProfile(cliArgs.profile));
-
     Object.assign(options, cliSpecificOptions);
+
+    if (cliArgs.profile) {
+        let profile = await getProfile(cliArgs.profile);
+
+        // QUESTION: Why doesn't Object.entries(profile.options) work when profile.options = {}?
+        for (let [key, value] of Object.entries(profile.options || {})) {
+            if (!options[key]) {
+                Logger.warn(`Option ${key} is not associated with an activated module.`);
+                continue;
+            }
+            options[key].default = value;
+            options[key].defaultSetBy = 'profile';
+        }
+    }
 
     let moduleArgs = yargs
         .version(false)
@@ -158,6 +180,7 @@ async function requireModule(name) {
     try {
         return requireg(path);
     } catch (e) {
+        Logger.trace(`Unable to require ${name}:`, e);
         Logger.trace(`Attempting to link ${name}.`);
         if (process.env.NODE_ENV === 'development' && await linkModule(name, moduleDir)) {
             Logger.trace(`Module linked!`);
@@ -236,7 +259,7 @@ async function getProfile(profileLocation) {
         });
     }
 
-    Logger.info('Availiable local profiles are:', localProfiles().join(', '));
+    Logger.info('Availiable local profiles are: [', chalk.bold(localProfiles().join(', ')), ']');
     Logger.info(`You may activate a profile via it's local name or a url to a profile json file.`);
     Logger.info(`Examples:
 \t${Package.name} --profile anime my/movies/folder
@@ -347,24 +370,6 @@ async function getProfile(profileLocation) {
 //     //     type: 'string',
 //     //     group: 'Advanced:'
 //     // },
-//     'simple': {
-//         default: false,
-//         describe: 'Disables the interface. Simply prints to the terminal.',
-//         type: 'boolean',
-//         group: 'Advanced:'
-//     },
-//     'modules': {
-//         default: [],
-//         describe: 'A list of modules to import.',
-//         type: 'array',
-//         group: 'Advanced:'
-//     },
-//     'test': {
-//         default: false,
-//         describe: 'Puts nmmes in test mode. No files will be encoded.',
-//         type: 'boolean',
-//         group: 'Advanced:'
-//     },
 // };
 // let args = yargs
 //     .version(false)
