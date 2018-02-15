@@ -10,9 +10,6 @@ import bluebird from 'bluebird';
 import npmi from 'npmi';
 const npmip = bluebird.promisify(npmi);
 import {
-    merge
-} from 'lodash';
-import {
     Module,
     Logger
 } from 'nmmes-backend';
@@ -91,6 +88,12 @@ const cliSpecificOptions = {
         describe: 'Skips videos already encoded with a specific video codecs.',
         type: 'array',
         group: 'General:'
+    },
+    'watch': {
+        default: false,
+        describe: 'Watches a directory for new video files to be converted.',
+        type: 'boolean',
+        group: 'Advanced:'
     },
 };
 
@@ -178,7 +181,9 @@ const moduleDir = './external-modules';
 async function requireModule(name) {
     const path = Path.resolve(Path.join(moduleDir, 'node_modules', name));
     try {
-        return requireg(path);
+        let mod = requireg(path);
+        Logger.trace(`Able to load module ${name} on first attempt.`);
+        return mod;
     } catch (e) {
         Logger.trace(`Unable to require ${name}:`, e);
         Logger.trace(`Attempting to link ${name}.`);
@@ -268,30 +273,12 @@ async function getProfile(profileLocation) {
 }
 
 // const options = {
-//     'version': {
-//         describe: 'Displays version information.',
-//         group: 'General:',
-//         type: 'boolean',
-//         default: false
-//     },
-//     'help': {
-//         describe: 'Displays help page.',
-//         group: 'General:',
-//         type: 'boolean',
-//         default: false
-//     },
 //     'g': {
 //         alias: 'temp-directory',
 //         default: Path.resolve(os.tmpdir(), Package.name),
 //         describe: 'Folder where files are stored during encoding.',
 //         type: 'string',
 //         normalize: true,
-//         group: 'General:'
-//     },
-
-//     'skip': {
-//         describe: 'Skips videos already encoded with a specific codec.',
-//         type: 'string',
 //         group: 'General:'
 //     },
 //
@@ -301,13 +288,6 @@ async function getProfile(profileLocation) {
 //         type: 'string',
 //         normalize: true,
 //         group: 'General:'
-//     },
-//
-//     'profile': {
-//         default: 'none',
-//         describe: 'My personal presets. Descriptions of each preset\'s use and function can be found on the github wiki.',
-//         type: 'string',
-//         group: 'Video:'
 //     },
 //     // 'x': {
 //     //     alias: 'extra-options',
@@ -352,24 +332,6 @@ async function getProfile(profileLocation) {
 //         type: 'string',
 //         group: 'Advanced:'
 //     },
-//     'debug': {
-//         default: false,
-//         describe: 'Enables debug mode. Prints extra debugging information.',
-//         type: 'boolean',
-//         group: 'Advanced:'
-//     },
-//     'delete': {
-//         default: false,
-//         describe: 'Delete source after encoding is complete and replaces it with new encode. [DANGER]',
-//         type: 'boolean',
-//         group: 'Advanced:'
-//     },
-//     // 'watch': {
-//     //     default: '',
-//     //     describe: 'Watches a directory for new video files to be converted.',
-//     //     type: 'string',
-//     //     group: 'Advanced:'
-//     // },
 // };
 // let args = yargs
 //     .version(false)

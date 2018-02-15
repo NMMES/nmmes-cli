@@ -6,10 +6,97 @@ import loadOptions from './options.js';
 import chalk from 'chalk';
 import Path from 'path';
 import fs from 'fs-extra';
+import chokidar from 'chokidar';
 
-let STOPREQ = false;
+class VideoQueue {
+    queue = [];
+    args = {};
+    _stopping = true;
+    constructor(args) {
+        this.args = args;
+    }
+    append(video) {
+        this.queue.push(video);
+    }
+    start() {
+        if (this._running)
+            return;
 
-process.on('SIGINT', () => STOPREQ = true);
+        process.once('SIGINT', this.stop.bind(this));
+
+        if (this.queue.length < 1)
+            return Logger.warn("No videos found.");
+
+        if (this.queue.length > 1)
+            Logger.info('Videos found:\n\t-', this.queue.map((vid) => {
+                return chalk.yellow(Path.relative(this.args._[0], vid.input.path));
+            }).join('\n\t- '));
+
+        this._loop();
+    }
+    stop() {
+        if (!this._running)
+            return;
+        this._stopping = true;
+    }
+    async _loop() {
+        this._running = true;
+        let v = this.queue.shift();
+        if (typeof v === 'undefined') {
+            Logger.info('Video queue emptied.');
+            return this.stop();
+        }
+        try {
+
+            if (this.args.s.length) {
+                await v._initialize();
+                const codecIdx = this.args.s.indexOf(v.input.metadata[0].format.video_codec);
+                if (~codecIdx) {
+                    Logger.log(`Removing "${v.input.path}" from queue because it has video codec ${chalk.bold(this.args.s[codecIdx])}.`);
+                    this._loop();
+                    return;
+                }
+            }
+
+            await v.run();
+
+            if (await fs.exists(v.output.path)) {
+                let destination;
+                if (this.args.delete) {
+                    Logger.log(`Removing ${chalk.bold(v.input.path)}...`);
+                    await fs.remove(v.input.path);
+                    destination = Path.join(Path.dirname(v.input.path), Path.basename(v.output.path))
+                } else {
+                    const relativeDirToInput = Path.dirname(Path.relative(this.args._[0], v.input.path));
+                    const relativeDestinationDir = Path.resolve(this.args.destination, relativeDirToInput);
+                    destination = Path.resolve(relativeDestinationDir, Path.basename(v.output.path));
+                }
+
+                Logger.trace(`Creating destination directory ${Path.dirname(destination)}.`);
+                await fs.ensureDir(Path.dirname(destination));
+
+                Logger.log(`Moving ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}... Wait for completion message.`);
+                fs.move(v.output.path, destination).then(() => Logger.log(`Moved ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}.`), err => {
+                    throw err;
+                });
+            }
+        } catch (e) {
+            if (await fs.exists(v.output.path)) {
+                await fs.remove(v.output.path);
+            }
+            if (this._stopping) {
+                this._running = false;
+                this._stopping = false;
+                Logger.warn('Stopping because stop request receieved.');
+                return;
+            }
+        }
+        this._loop();
+    }
+    _done() {
+        this.stop();
+    }
+}
 
 (async () => {
     let options;
@@ -24,93 +111,59 @@ process.on('SIGINT', () => STOPREQ = true);
     let args = options.args,
         modules = options.modules;
 
-    Logger.trace('Options:', options.args);
+    Logger.trace('Options:', args);
 
-    let videos = [];
-    for (let path of await getVideoPaths(args._[0])) {
+    let queue = new VideoQueue(args);
 
-        const outputBase = Path.basename(path, Path.extname(path)) + '.' + args.outputFormat;
-        const outputPath = Path.resolve(args.tempDirectory, outputBase);
-
-        videos.push(new Video({
-            input: {
-                path
-            },
-            output: {
-                path: outputPath
-            },
-            modules: Object.entries(modules).map(modulePair => {
-                let name = modulePair[0];
-                let moduleClass = modulePair[1];
-
-                let moduleOptions = Object.keys(moduleClass.options()).reduce((obj, key) => {
-                    obj[key] = args[`${name}-${key}`];
-                    return obj;
-                }, {});
-
-                return new moduleClass(moduleOptions);
-            })
-        }));
-    }
-
-    if (args.s.length) {
-        for (const idx in videos) {
-            const vid = videos[idx];
-            await vid._initialize();
-            const codecIdx = args.s.indexOf(vid.input.metadata[0].format.video_codec);
-            if (~codecIdx) {
-                Logger.log(`Removing "${vid.input.path}" from queue because it has video codec ${chalk.bold(args.s[codecIdx])}.`);
-                videos.splice(idx, 1);
-            }
+    if (!args.watch) {
+        for (let path of await getVideoPaths(args._[0])) {
+            queue.append(createVideo(path, modules, args));
         }
+        queue.start();
+    } else {
+        Logger.info(`Watching ${chalk.bold(args._[0])} for new video files...`);
+        let watcher = chokidar.watch(args._[0], {
+            ignoreInitial: true,
+            ignored: /(^|[\/\\])\../,
+            awaitWriteFinish: true
+        }).on('add', (path) => {
+            queue.append(createVideo(path, modules, args));
+            queue.start();
+        });
+        process.once('SIGINT', watcher.close.bind(watcher));
     }
 
-    if (videos.length < 1)
-        return Logger.warn("No videos found.");
-
-    if (videos.length > 1)
-        Logger.info('Videos found:\n\t-', videos.map((vid) => {
-            return chalk.yellow(Path.relative(args._[0], vid.input.path));
-        }).join('\n\t- '));
-
-    for (let v of videos) {
-        try {
-            await v.run();
-
-            if (await fs.exists(v.output.path)) {
-                let destination;
-                if (args.delete) {
-                    Logger.log(`Removing ${chalk.bold(v.input.path)}...`);
-                    await fs.remove(v.input.path);
-                    destination = Path.join(Path.dirname(v.input.path), Path.basename(v.output.path))
-                } else {
-                    const relativeDirToInput = Path.dirname(Path.relative(args._[0], v.input.path));
-                    const relativeDestinationDir = Path.resolve(args.destination, relativeDirToInput);
-                    destination = Path.resolve(relativeDestinationDir, Path.basename(v.output.path));
-                }
-
-                Logger.trace(`Creating destination directory ${Path.dirname(destination)}.`);
-                await fs.ensureDir(Path.dirname(destination));
-
-                Logger.log(`Moving ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}... Wait for completion message.`);
-                fs.move(v.output.path, destination).then(() => Logger.log(`Moved ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}.`), err => {
-                    throw err;
-                });
-            }
-        } catch (e) {
-            if (STOPREQ) {
-                Logger.warn('Stopping because SIGINT receieved.');
-                break;
-            }
-        }
-    }
-
-    Logger.info('All videos processed.');
 })();
 
 import bluebird from 'bluebird';
 import mime from 'mime';
 const recursive = bluebird.promisify(require('recursive-readdir'));
+
+function createVideo(path, modules, args) {
+
+    const outputBase = Path.basename(path, Path.extname(path)) + '.' + args.outputFormat;
+    const outputPath = Path.resolve(args.tempDirectory, outputBase);
+
+    return new Video({
+        input: {
+            path
+        },
+        output: {
+            path: outputPath
+        },
+        modules: Object.entries(modules).map(modulePair => {
+            let name = modulePair[0];
+            let moduleClass = modulePair[1];
+
+            let moduleOptions = Object.keys(moduleClass.options()).reduce((obj, key) => {
+                obj[key] = args[`${name}-${key}`];
+                return obj;
+            }, {});
+
+            return new moduleClass(moduleOptions);
+        })
+    })
+}
 
 export async function getVideoPaths(path) {
     function ignoreFunc(file, stats) {
