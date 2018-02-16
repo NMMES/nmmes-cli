@@ -25,7 +25,7 @@ Install all of the following dependencies. The [Installation Wiki](#) contains i
 - [ffmpeg](https://ffmpeg.org/) - Does the video conversion among other things.
 
 ### Selecting the Correct Version
-NMMES-cli is divided into 3 seperate version identities: Stable, Next, and Bleeding Edge. It is always recommended that you install the Stable version. If you are looking for additional features that have not yet landed in stable, you may attempt to use the Next version. This will give you access to features that are for the most part complete and usable but still require addtional testing. If you plan on doing any kind of development on nmmes-cli it is recommended you use the Bleeding Edge version.
+NMMES-cli is divided into 3 separate version identities: Stable, Next, and Bleeding Edge. It is always recommended that you install the Stable version. If you are looking for additional features that have not yet landed in stable, you may attempt to use the Next version. This will give you access to features that are for the most part complete and usable but still require additional testing. If you plan on doing any kind of development on nmmes-cli it is recommended you use the Bleeding Edge version.
 
 In order to determine which version you are using use the `--version` flag.
 
