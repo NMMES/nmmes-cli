@@ -6,11 +6,11 @@
 
 The NMMES command line interface frontend of the NMMES-backend. Use it to encode large libraries of videos to another format.
 
-* [Installation](#Installation)
-* [Version](#Version)
-* [Usage](#Usage)
-  * [Basic](#Basic)
-  * [Options](#Options)
+* [Installation](#installation)
+* [Version](#version)
+* [Usage](#usage)
+  * [Basic](#basic)
+  * [Options](#options)
   * [Wiki](https://github.com/NMMES/nmmes-cli/wiki)
 
 ## Installation
@@ -32,7 +32,7 @@ In order to determine which version you are using use the `--version` flag.
 ### Install
 
 ##### Stable
-If you want to use nmmes-cli use this version.
+If you want to use NMMES-cli use this version.
 ```
 npm install --global nmmes-cli
 ```
