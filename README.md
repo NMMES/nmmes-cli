@@ -71,7 +71,7 @@ The `--version` flag displays the current version of nmmes-cli in use.
 If you get a [semantic version number](http://semver.org/) (Ex: 1.0.0) you are using the Stable version. If you get "next" you are using the Next version. If you get a git branch and commit id, for example "nmmes-cli (Development Build) master#3c95c8a", you are using the Bleeding Edge version.
 
 Type Boolean<br>
-Default: false
+Default: false<br>
 Example: `nmmes-cli --version`
 
 ---
@@ -79,7 +79,7 @@ Example: `nmmes-cli --version`
 The `--help` option displays a list of information about nmmes-cli's usage as well as module specific options.
 
 Type: Boolean<br>
-Default: false
+Default: false<br>
 Example: `nmmes-cli --modules he-audio --help`
 
 ---
@@ -87,7 +87,7 @@ Example: `nmmes-cli --modules he-audio --help`
 The `--temp-directory` option allows you to choose which directory should be used to store files still in the encoding process.
 
 Type: String<br>
-Default: A folder named nmmes-cli in your system's temporary directory.
+Default: A folder named nmmes-cli in your system's temporary directory.<br>
 Example: `nmmes-cli ~/videos-to-convert/video.mkv --temp-directory /tmp`
 
 ---
@@ -95,7 +95,7 @@ Example: `nmmes-cli ~/videos-to-convert/video.mkv --temp-directory /tmp`
 The `--destination` option allows you to choose where finished encodes should be deposited.
 
 Type: String<br>
-Default: A folder named nmmes-out in your [current working directory](https://www.computerhope.com/jargon/c/currentd.htm).
+Default: A folder named nmmes-out in your [current working directory](https://www.computerhope.com/jargon/c/currentd.htm).<br>
 Example: `nmmes-cli ~/videos-to-convert/video.mkv --destination ~/Videos`
 
 ---
@@ -104,7 +104,7 @@ The `--output-format` option sets the container to store the finished encode in.
 
 Type: String<br>
 Options: mkv, mp4, m4v<br>
-Default: mkv
+Default: mkv<br>
 Example: `nmmes-cli ~/videos-to-convert/video.mkv --output-format mp4`
 
 ---
@@ -112,7 +112,7 @@ Example: `nmmes-cli ~/videos-to-convert/video.mkv --output-format mp4`
 The `--modules` option defines a list of modules which should be installed/loaded and used to process the input. You can find a list of modules on the [npm directory](https://www.npmjs.com/search?q=nmmes-module). Be mindful of the order you define modules in since that is the order they will run in.
 
 Type: Array<br>
-Default: normalize he-audio encoder
+Default: normalize he-audio encoder<br>
 Example: `nmmes-cli ~/videos-to-convert/video.mkv --modules encoder sample`
 
 ---
@@ -120,18 +120,21 @@ Example: `nmmes-cli ~/videos-to-convert/video.mkv --modules encoder sample`
 The `--profile` option defines a url or name of an encoding preset. Enter `--profile list` to see a list of available local profiles or check the [github profiles directory](https://github.com/NMMES/nmmes-cli/tree/master/src/profiles).
 
 Type: String<br>
-Default: none
+Default: none<br>
+Example: `nmmes-cli ~/videos-to-convert/video.mkv --profile anime`
 
 ---
 
 The `--delete` option deletes the source file when an encode has completed successfully and replaces the original with the new encode.
 
 Type: Boolean<br>
-Default: false
+Default: false<br>
+Example: `nmmes-cli ~/videos-to-convert/video.mkv --delete`
 
 ---
 
 The `--watch` option places nmmes-cli in watch mode. The input directory will be watched for newly added video files and will process these videos.
 
 Type: Boolean<br>
-Default: false
+Default: false<br>
+Example: `nmmes-cli ~/videos-to-convert --watch`
