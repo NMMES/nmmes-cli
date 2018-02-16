@@ -127,8 +127,12 @@ class VideoQueue {
             ignored: /(^|[\/\\])\../,
             awaitWriteFinish: true
         }).on('add', (path) => {
-            queue.append(createVideo(path, modules, args));
-            queue.start();
+            getVideoPaths(path).then(paths => {
+                for (let path of paths) {
+                    queue.append(createVideo(path, modules, args));
+                }
+                queue.start();
+            })
         });
         process.once('SIGINT', watcher.close.bind(watcher));
     }
