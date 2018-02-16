@@ -138,3 +138,11 @@ The `--watch` option places nmmes-cli in watch mode. The input directory will be
 Type: Boolean<br>
 Default: false<br>
 Example: `nmmes-cli ~/videos-to-convert --watch`
+
+---
+
+The `--skip-video-codec` option instructs nmmes-cli to skip videos already encoded with a specific video codecs.
+
+Type: Array<br>
+Default: <br>
+Example: `nmmes-cli ~/videos-to-convert --skip-video-codec libx265 vp9`
