@@ -27,13 +27,13 @@ const cliSpecificOptions = {
         type: 'boolean',
         default: false
     },
-    'log-file': {
-        default: '',
-        describe: 'Sets the log file location for all output from h265ize.',
-        type: 'string',
-        normalize: true,
-        group: 'General:'
-    },
+    // 'log-file': {
+    //     default: '',
+    //     describe: 'Sets the log file location for all output from h265ize.',
+    //     type: 'string',
+    //     normalize: true,
+    //     group: 'General:'
+    // },
     'profile': {
         default: 'none',
         describe: 'Url or name of an encoding preset.',
@@ -56,12 +56,12 @@ const cliSpecificOptions = {
         normalize: true,
         group: 'General:'
     },
-    'debug': {
-        default: false,
-        describe: 'Enables debug mode. Prints extra debugging information.',
-        type: 'boolean',
-        group: 'Advanced:'
-    },
+    // 'debug': {
+    //     default: false,
+    //     describe: 'Enables debug mode. Prints extra debugging information.',
+    //     type: 'boolean',
+    //     group: 'Advanced:'
+    // },
     'delete': {
         default: false,
         describe: 'Delete source after encoding is complete and replaces it with new encode. [DANGER]',
@@ -72,7 +72,7 @@ const cliSpecificOptions = {
         describe: 'List of modules to enable',
         group: 'General:',
         type: 'array',
-        default: ['encoder', 'he-audio', 'sample', 'normalize']
+        default: ['normalize', 'he-audio', 'encoder',]
     },
     'f': {
         alias: 'output-format',
@@ -122,6 +122,12 @@ export default async function load() {
         .usage('Usage: $0 [options] file|directory')
         .options(cliSpecificOptions).argv;
 
+
+    if (cliArgs.version) {
+        console.log(`${Package.name} ${getVersion().formatted}`);
+        process.exit();
+    }
+
     if (cliArgs.debug) {
         Logger.setLevel('trace');
     }
@@ -148,13 +154,9 @@ export default async function load() {
     let moduleArgs = yargs
         .version(false)
         .help(false)
-        .usage('Usage: $0 [options] file|directory')
+        .usage('Usage: $0 file|directory [options]')
         .options(options).argv;
-
-    if (moduleArgs.version) {
-        console.log(`${Package.name} ${getVersion().formatted}`);
-        process.exit();
-    } else if (moduleArgs.help || (moduleArgs._.length < 1 && !moduleArgs.watch)) {
+    if (moduleArgs.help || (moduleArgs._.length < 1 && !moduleArgs.watch)) {
         console.log('Package:', Package.name, '\t', 'Version:', getVersion().formatted);
         console.log('Description:', Package.description);
         yargs.showHelp();
