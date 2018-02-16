@@ -7,8 +7,7 @@ import fs from 'fs-extra';
 import requireg from 'requireg';
 import chalk from 'chalk';
 import bluebird from 'bluebird';
-import npmi from 'npmi';
-const npmip = bluebird.promisify(npmi);
+const npmip = bluebird.promisify(require('npmi'));
 import {
     Module,
     Logger
@@ -275,22 +274,6 @@ async function getProfile(profileLocation) {
 }
 
 // const options = {
-//     'g': {
-//         alias: 'temp-directory',
-//         default: Path.resolve(os.tmpdir(), Package.name),
-//         describe: 'Folder where files are stored during encoding.',
-//         type: 'string',
-//         normalize: true,
-//         group: 'General:'
-//     },
-//
-//     'log-file': {
-//         default: '',
-//         describe: 'Sets the log file location for all output from h265ize.',
-//         type: 'string',
-//         normalize: true,
-//         group: 'General:'
-//     },
 //     // 'x': {
 //     //     alias: 'extra-options',
 //     //     default: '',
@@ -322,12 +305,6 @@ async function getProfile(profileLocation) {
 //         type: 'number',
 //         group: 'Video:'
 //     },
-//     'normalize-level': {
-//         default: 2,
-//         describe: 'Level of normalization to be applied. See https://github.com/FallingSnow/h265ize/issues/56 for more info.',
-//         type: 'number',
-//         group: 'Video:'
-//     },
 //     'stats': {
 //         default: false,
 //         describe: 'Output a stats file containing stats to this destination.',
@@ -335,96 +312,3 @@ async function getProfile(profileLocation) {
 //         group: 'Advanced:'
 //     },
 // };
-// let args = yargs
-//     .version(false)
-//     .help(false)
-//     .usage('Usage: $0 [options] file|directory')
-//     .options(options).argv;
-//
-// const yargAliases = yargs.choices().parsed.aliases;
-//
-//
-// function explicitFlags() {
-//     let flags = {};
-//     for (let option of Object.keys(args)) {
-//         if (userSetOption(option, false)) flags[option] = args[option];
-//     }
-//     return flags;
-// }
-//
-// export function userSetOption(option, aliases = true) {
-//     function searchForOption(option) {
-//         return ~process.argv.indexOf(option);
-//     }
-//
-//     if (searchForOption(`-${option}`) || searchForOption(`--${option}`))
-//         return true;
-//
-//     // Handle aliases for same option
-//     if (aliases)
-//         for (let aliasIndex in yargAliases[option]) {
-//             let alias = yargAliases[option][aliasIndex];
-//             if (searchForOption(`-${alias}`) || searchForOption(`--${alias}`))
-//                 return true;
-//         }
-//
-//     return false;
-// }
-//
-// function flagsToModuleOptions(flags) {
-//     let moduleOptions = {
-//         'nmmes-module-encoder': {
-//             defaults: {
-//                 video: {
-//                     vf: []
-//                 }
-//             }
-//         },
-//         'nmmes-module-normalize': {},
-//         'nmmes-module-he-audio': {},
-//         'nmmes-module-sample': {},
-//     };
-//     if (flags.videoCodec) moduleOptions['nmmes-module-encoder'].defaults.video['c:{POS}'] = flags.videoCodec;
-//     if (flags.bitdepth) {
-//         if (flags.bitdepth === 8) {
-//             moduleOptions['nmmes-module-encoder'].defaults.video.pixel_format = 'yuv420p';
-//         } else if (flags.bitdepth === 10) {
-//             moduleOptions['nmmes-module-encoder'].defaults.video.pixel_format = 'yuv420p10le';
-//         } else if (flags.bitdepth === 12) {
-//             moduleOptions['nmmes-module-encoder'].defaults.video.pixel_format = 'yuv420p12le';
-//         }
-//     }
-//     if (flags.scale) moduleOptions['nmmes-module-encoder'].defaults.video.vf.push(`scale=${flags.scale}:-2`);
-//     if (flags.preset) moduleOptions['nmmes-module-encoder'].defaults.video.preset = flags.preset;
-//     if (flags.quality) moduleOptions['nmmes-module-encoder'].defaults.video.crf = flags.quality;
-//     if (flags.preview) {
-//         moduleOptions['nmmes-module-encoder'].defaults.video.t = flags.previewLength / 1000;
-//     }
-//     if (flags.nativeLangage) moduleOptions['nmmes-module-normalize'].language = flags.nativeLangage;
-//     if (flags.forceHeAudio) moduleOptions['nmmes-module-he-audio'].force = flags.forceHeAudio;
-//     if (flags.downmixHeAudio) moduleOptions['nmmes-module-he-audio'].downmix = flags.downmixHeAudio;
-//     if (flags.previewLength) moduleOptions['nmmes-module-sample'].length = flags.previewLength;
-//
-//     return moduleOptions;
-// }
-//
-// function applyAliases(flags) {
-//     for (let flag of Object.keys(flags)) {
-//         for (let aliasIndex in yargAliases[flag]) {
-//             let alias = yargAliases[flag][aliasIndex];
-//             flags[alias] = flags[flag];
-//         }
-//     }
-//     return flags;
-// }
-//
-// export default async function flags() {
-//     const profile = await getProfile(args.profile);
-//     let options = Object.assign(args, applyAliases(profile), applyAliases(explicitFlags()));
-//     merge(options, {
-//         moduleOptions: flagsToModuleOptions(options)
-//     });
-//     return options;
-// }
-//
-// Logger.trace('Options parser loaded.');
