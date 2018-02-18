@@ -11,7 +11,7 @@ import chokidar from 'chokidar';
 class VideoQueue {
     queue = [];
     args = {};
-    _stopping = true;
+    _stopping = false;
     constructor(args) {
         this.args = args;
     }
@@ -58,20 +58,26 @@ class VideoQueue {
                 }
             }
 
+            let destination;
+            if (this.args.delete) {
+                Logger.log(`Removing ${chalk.bold(v.input.path)}...`);
+                await fs.remove(v.input.path);
+                destination = Path.join(Path.dirname(v.input.path), Path.basename(v.output.path))
+            } else {
+                const relativeDirToInput = Path.dirname(Path.relative(this.args._[0], v.input.path));
+                const relativeDestinationDir = Path.resolve(this.args.destination, relativeDirToInput);
+                destination = Path.resolve(relativeDestinationDir, Path.basename(v.output.path));
+            }
+
+            if (await fs.exists(destination)) {
+                Logger.log(`Removing "${v.input.path}" from queue because destination file already exists.`);
+                this._loop();
+                return;
+            }
+
             await v.run();
 
             if (await fs.exists(v.output.path)) {
-                let destination;
-                if (this.args.delete) {
-                    Logger.log(`Removing ${chalk.bold(v.input.path)}...`);
-                    await fs.remove(v.input.path);
-                    destination = Path.join(Path.dirname(v.input.path), Path.basename(v.output.path))
-                } else {
-                    const relativeDirToInput = Path.dirname(Path.relative(this.args._[0], v.input.path));
-                    const relativeDestinationDir = Path.resolve(this.args.destination, relativeDirToInput);
-                    destination = Path.resolve(relativeDestinationDir, Path.basename(v.output.path));
-                }
-
                 Logger.trace(`Creating destination directory ${Path.dirname(destination)}.`);
                 await fs.ensureDir(Path.dirname(destination));
 
