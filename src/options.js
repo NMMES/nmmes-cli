@@ -6,8 +6,6 @@ import gitVer from 'git-rev-sync';
 import fs from 'fs-extra';
 import requireg from 'requireg';
 import chalk from 'chalk';
-import bluebird from 'bluebird';
-const npmip = bluebird.promisify(require('npmi'));
 import {
     Module,
     Logger
@@ -71,7 +69,7 @@ const cliSpecificOptions = {
         describe: 'List of modules to enable',
         group: 'General:',
         type: 'array',
-        default: ['normalize', 'he-audio', 'encoder',]
+        default: ['normalize', 'he-audio', 'encoder']
     },
     'f': {
         alias: 'output-format',
@@ -97,21 +95,18 @@ const cliSpecificOptions = {
 };
 
 export function getVersion() {
-    try {
-        if (fs.existsSync('node_modules')) {
-            let path = Path.resolve(fs.realpathSync('node_modules'), '../');
-            let version = gitVer.branch(path) + '#' + gitVer.short(path);
-            return {
-                version: Package.version,
-                formatted: `(Development Build) ${version}`
-            };
-        }
-    } catch (e) {
+    if (fs.existsSync('node_modules')) {
+        let path = Path.resolve(fs.realpathSync('node_modules'), '../');
+        let version = gitVer.branch(path) + '#' + gitVer.short(path);
         return {
             version: Package.version,
-            formatted: Package.version
+            formatted: `(Development Build) ${version}`
         };
     }
+    return {
+        version: Package.version,
+        formatted: Package.version
+    };
 }
 
 export default async function load() {
@@ -154,7 +149,7 @@ export default async function load() {
         .strict()
         .usage('Usage: $0 file|directory [options]')
         .options(options).argv;
-    if (moduleArgs.help || (moduleArgs._.length < 1 && !moduleArgs.watch)) {
+    if (moduleArgs.help || moduleArgs._.length < 1) {
         console.log('Package:', Package.name, '\t', 'Version:', getVersion().formatted);
         console.log('Description:', Package.description);
         yargs.showHelp();
@@ -177,37 +172,24 @@ async function loadModules(modules) {
     return loadedModules;
 }
 
-const moduleDir = './external-modules';
 async function requireModule(name) {
-    const path = Path.resolve(Path.join(moduleDir, 'node_modules', name));
+    if (process.env.NODE_ENV === 'development') {
+        try {
+            let mod = requireg(Path.join(os.homedir(), '.config/yarn/link', name));
+            Logger.trace(`Module ${name} loaded from link directory.`);
+            return mod;
+        } catch (e) {
+            Logger.trace("Could not load module from link directory.", e);
+        }
+    }
     try {
-        let mod = requireg(path);
-        Logger.trace(`Able to load module ${name} on first attempt.`);
+        let mod = requireg(name);
+        Logger.trace(`Loaded module ${name}.`);
         return mod;
     } catch (e) {
         Logger.trace(`Unable to require ${name}:`, e);
-        if (process.env.NODE_ENV === 'development' && await linkModule(name, moduleDir)) {
-            Logger.trace(`Module ${name} linked!`);
-            return requireg(path);
-        }
-        Logger.info(`Attempting to install ${name}.`);
-        await npmip({
-            path: moduleDir,
-            name: name,
-            version: Module.MODULE_VERSION
-        });
-        return requireg(path);
+        throw new Error(`Could not load ${name}@${Module.MODULE_VERSION}. Try installing it via "npm install --global ${name}@${Module.MODULE_VERSION}".`);
     }
-}
-
-async function linkModule(name, moduleDir) {
-    const linkPath = Path.join(os.homedir(), '.config/yarn/link', name);
-    if (await fs.pathExists(linkPath)) {
-        await fs.ensureDir(Path.join(moduleDir, 'node_modules'));
-        await fs.symlink(linkPath, Path.join(moduleDir, 'node_modules', name));
-        return true;
-    }
-    return false;
 }
 
 async function extractModuleOptions(modules) {

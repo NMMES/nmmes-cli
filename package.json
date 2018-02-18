@@ -38,7 +38,6 @@
         "is-url": "^1.2.2",
         "mime": "^2.0.3",
         "nmmes-backend": "^0.0.3",
-        "npmi": "^4.0.0",
         "recursive-readdir": "^2.2.1",
         "request": "^2.83.0",
         "request-promise-native": "^1.0.5",
