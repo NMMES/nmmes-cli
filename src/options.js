@@ -134,8 +134,6 @@ export default async function load() {
     let modules = await loadModules(cliArgs.modules);
     let options = await extractModuleOptions(modules);
 
-    Object.assign(options, cliSpecificOptions);
-
     if (cliArgs.profile) {
         let profile = await getProfile(cliArgs.profile);
 
@@ -153,6 +151,7 @@ export default async function load() {
     let moduleArgs = yargs
         .version(false)
         .help(false)
+        .strict()
         .usage('Usage: $0 file|directory [options]')
         .options(options).argv;
     if (moduleArgs.help || (moduleArgs._.length < 1 && !moduleArgs.watch)) {
@@ -187,15 +186,15 @@ async function requireModule(name) {
         return mod;
     } catch (e) {
         Logger.trace(`Unable to require ${name}:`, e);
-        Logger.trace(`Attempting to link ${name}.`);
         if (process.env.NODE_ENV === 'development' && await linkModule(name, moduleDir)) {
-            Logger.trace(`Module linked!`);
+            Logger.trace(`Module ${name} linked!`);
             return requireg(path);
         }
         Logger.info(`Attempting to install ${name}.`);
         await npmip({
             path: moduleDir,
-            name: `${name}@${Module.MODULE_VERSION}`
+            name: name,
+            version: Module.MODULE_VERSION
         });
         return requireg(path);
     }
