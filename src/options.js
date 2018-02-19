@@ -69,7 +69,7 @@ const cliSpecificOptions = {
         describe: 'List of modules to enable',
         group: 'General:',
         type: 'array',
-        default: ['normalize', 'he-audio', 'encoder']
+        default: ['normalize', 'encoder']
     },
     'f': {
         alias: 'output-format',
@@ -98,15 +98,9 @@ export function getVersion() {
     if (fs.existsSync('node_modules')) {
         let path = Path.resolve(fs.realpathSync('node_modules'), '../');
         let version = gitVer.branch(path) + '#' + gitVer.short(path);
-        return {
-            version: Package.version,
-            formatted: `(Development Build) ${version}`
-        };
+        return `(Development Build) ${version}`;
     }
-    return {
-        version: Package.version,
-        formatted: Package.version
-    };
+    return Package.version;
 }
 
 export default async function load() {
@@ -118,7 +112,7 @@ export default async function load() {
 
 
     if (cliArgs.version) {
-        console.log(`${Package.name} ${getVersion().formatted}`);
+        console.log(`${Package.name} ${getVersion()}\nModule Version: ${Module.MODULE_VERSION}`);
         process.exit();
     }
 
