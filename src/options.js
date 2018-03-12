@@ -107,7 +107,7 @@ export default async function load() {
     let cliArgs = yargs
         .version(false)
         .help(false)
-        .usage('Usage: $0 [options] file|directory')
+        .usage('Usage: $0 [options] <file|directory>')
         .options(cliSpecificOptions).argv;
 
 
@@ -144,7 +144,7 @@ export default async function load() {
         .usage('Usage: $0 file|directory [options]')
         .options(options).argv;
     if (moduleArgs.help || moduleArgs._.length < 1) {
-        console.log('Package:', Package.name, '\t', 'Version:', getVersion().formatted);
+        console.log('Package:', Package.name, '\t', 'Version:', getVersion());
         console.log('Description:', Package.description);
         yargs.showHelp();
         process.exit();

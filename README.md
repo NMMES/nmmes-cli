@@ -6,11 +6,13 @@
 
 The NMMES command line interface frontend of the NMMES-backend. Use it to encode large libraries of videos to another format.
 
+* [Beginner's Guide](https://github.com/NMMES/nmmes-cli/wiki/Beginner's-Guide)
 * [Installation](#installation)
 * [Version](#version)
 * [Usage](#usage)
   * [Basic](#basic)
   * [Options](#options)
+  * [Modules List](https://www.npmjs.com/search?q=nmmes-module)
   * [Wiki](https://github.com/NMMES/nmmes-cli/wiki)
 
 ## Installation
@@ -18,7 +20,7 @@ The NMMES command line interface frontend of the NMMES-backend. Use it to encode
 NMMES-cli supports Windows, Mac, and Linux.
 
 ### Installing Dependencies
-Install all of the following dependencies. The [Installation Wiki](#) contains instructions on installing these dependencies on different OS's and distributions.
+Install all of the following dependencies. The [Beginner's Guide](https://github.com/NMMES/nmmes-cli/wiki/Beginner's-Guide#chapter-1-installation) contains instructions on installing these dependencies on different OS's.
 
 - [Node.js](https://nodejs.org/en/) - Required in order to run NMMES-cli.
 - [NPM](https://www.npmjs.com/) - (Usually packaged with Node.js) Required in order to install the NMMES family.
@@ -56,7 +58,7 @@ In order to use nmmes-cli you only have to provide one parameter, the file or fo
 
 Example
 ```
-nmmes-cli my-videos-folder
+nmmes my-videos-folder
 ```
 
 After running this command a command line interface will open to display the progress of your encodings as well as a log to display relevant information.
@@ -72,7 +74,7 @@ If you get a [semantic version number](http://semver.org/) (Ex: 1.0.0) you are u
 
 Type Boolean<br>
 Default: false<br>
-Example: `nmmes-cli --version`
+Example: `nmmes --version`
 
 ---
 
@@ -80,7 +82,7 @@ The `--help` option displays a list of information about nmmes-cli's usage as we
 
 Type: Boolean<br>
 Default: false<br>
-Example: `nmmes-cli --modules he-audio --help`
+Example: `nmmes --modules he-audio --help`
 
 ---
 
@@ -88,7 +90,7 @@ The `--temp-directory` option allows you to choose which directory should be use
 
 Type: String<br>
 Default: A folder named nmmes-cli in your system's temporary directory.<br>
-Example: `nmmes-cli ~/videos-to-convert/video.mkv --temp-directory /tmp`
+Example: `nmmes ~/videos-to-convert/video.mkv --temp-directory /tmp`
 
 ---
 
@@ -96,7 +98,7 @@ The `--destination` option allows you to choose where finished encodes should be
 
 Type: String<br>
 Default: A folder named nmmes-out in your [current working directory](https://www.computerhope.com/jargon/c/currentd.htm).<br>
-Example: `nmmes-cli ~/videos-to-convert/video.mkv --destination ~/Videos`
+Example: `nmmes ~/videos-to-convert/video.mkv --destination ~/Videos`
 
 ---
 
@@ -105,7 +107,7 @@ The `--output-format` option sets the container to store the finished encode in.
 Type: String<br>
 Options: mkv, mp4, m4v<br>
 Default: mkv<br>
-Example: `nmmes-cli ~/videos-to-convert/video.mkv --output-format mp4`
+Example: `nmmes ~/videos-to-convert/video.mkv --output-format mp4`
 
 ---
 
@@ -113,7 +115,7 @@ The `--modules` option defines a list of modules which should be installed/loade
 
 Type: Array<br>
 Default: normalize he-audio encoder<br>
-Example: `nmmes-cli ~/videos-to-convert/video.mkv --modules encoder sample`
+Example: `nmmes ~/videos-to-convert/video.mkv --modules encoder sample`
 
 ---
 
@@ -121,7 +123,7 @@ The `--profile` option defines a url or name of an encoding preset. Enter `--pro
 
 Type: String<br>
 Default: none<br>
-Example: `nmmes-cli ~/videos-to-convert/video.mkv --profile anime`
+Example: `nmmes ~/videos-to-convert/video.mkv --profile anime`
 
 ---
 
@@ -129,7 +131,7 @@ The `--delete` option deletes the source file when an encode has completed succe
 
 Type: Boolean<br>
 Default: false<br>
-Example: `nmmes-cli ~/videos-to-convert/video.mkv --delete`
+Example: `nmmes ~/videos-to-convert/video.mkv --delete`
 
 ---
 
@@ -137,7 +139,7 @@ The `--watch` option places nmmes-cli in watch mode. The input directory will be
 
 Type: Boolean<br>
 Default: false<br>
-Example: `nmmes-cli ~/videos-to-convert --watch`
+Example: `nmmes ~/videos-to-convert --watch`
 
 ---
 
@@ -145,4 +147,4 @@ The `--skip-video-codec` option instructs nmmes-cli to skip videos already encod
 
 Type: Array<br>
 Default: <br>
-Example: `nmmes-cli ~/videos-to-convert --skip-video-codec libx265 vp9`
+Example: `nmmes ~/videos-to-convert --skip-video-codec libx265 vp9`
