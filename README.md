@@ -45,12 +45,6 @@ If you are looking for new features before they are released use this version.
 npm install --global nmmes-cli@next
 ```
 
-##### Bleeding Edge
-Only use this version for development work on nmmes-cli.
-```
-git clone https://github.com/NMMES/nmmes-cli.git && cd nmmes-cli && npm install
-```
-
 ## Usage
 
 ### Basic
