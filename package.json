@@ -11,7 +11,7 @@
         "nmmes": "dist/nmmes-cli.js"
     },
     "scripts": {
-        "preinstall": "webpack --env=production --progress",
+        "prepare": "npm run dist",
         "check-dep": "npm-check -i source-map-loader -i source-map-support -i eslint || true ",
         "test": "yarn run dist && yarn run update-submodules && universalis-tester ./test/index.js",
         "dev": "webpack --env=development --watch",
