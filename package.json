@@ -20,10 +20,8 @@
         "build": "npm run dist && npm run pack",
         "pack": "pkg -t latest-linux-x64,latest-win-x64 ./dist/package.json --out-path build",
         "profile": "node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt",
-        "preversion": "npm test",
         "version": "git add . && git commit -S",
         "postversion": "git push",
-        "patch-release": "npm version patch && npm publish"
     },
     "main": "dist/nmmes-cli.js",
     "repository": {
