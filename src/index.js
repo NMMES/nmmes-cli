@@ -60,8 +60,6 @@ class VideoQueue {
 
             let destination;
             if (this.args.delete) {
-                Logger.log(`Removing ${chalk.bold(v.input.path)}...`);
-                await fs.remove(v.input.path);
                 destination = Path.join(Path.dirname(v.input.path), Path.basename(v.output.path))
             } else {
                 const relativeDirToInput = Path.dirname(Path.relative(this.args._[0], v.input.path));
@@ -76,6 +74,11 @@ class VideoQueue {
             }
 
             await v.run();
+
+            if (this.args.delete) {
+                Logger.log(`Removing ${chalk.bold(v.input.path)}...`);
+                await fs.remove(v.input.path);
+            }
 
             if (await fs.exists(v.output.path)) {
                 Logger.trace(`Creating destination directory ${Path.dirname(destination)}.`);
