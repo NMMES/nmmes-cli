@@ -200,5 +200,7 @@ const SUPPORTED_EXTENSIONS = ['.m2ts', '.mts'];
 export function isVideo(path) {
     const ext = Path.extname(path);
     if (!ext) return false;
-    return mime.getType(ext).startsWith('video/') || ~SUPPORTED_EXTENSIONS.indexOf(ext);
+    const mimeType = mime.getType(ext);
+    if (!mimeType) return false;
+    return mimeType.startsWith('video/') || ~SUPPORTED_EXTENSIONS.indexOf(ext);
 }
