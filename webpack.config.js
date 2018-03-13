@@ -17,12 +17,12 @@ module.exports = function(env) {
     if (env === 'development' && !fs.existsSync(symLink))
         fs.symlinkSync(path.resolve(__dirname, 'node_modules'), symLink, 'dir');
 
-    if (env === 'production') {
-        const packageJsonOutput = path.join(output, 'package.json');
-        let json = Object.assign({}, packageJson);
-        json.main = json.name + '.js';
-        fs.writeFileSync(packageJsonOutput, JSON.stringify(json));
-    }
+    // if (env === 'production') {
+    //     const packageJsonOutput = path.join(output, 'package.json');
+    //     let json = Object.assign({}, packageJson);
+    //     json.main = json.name + '.js';
+    //     fs.writeFileSync(packageJsonOutput, JSON.stringify(json));
+    // }
 
     return {
         target: 'async-node',
