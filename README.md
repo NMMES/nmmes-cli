@@ -129,6 +129,14 @@ Example: `nmmes ~/videos-to-convert/video.mkv --delete`
 
 ---
 
+The `--debug` option sets the log level to debug.
+
+Type: Boolean<br>
+Default: false<br>
+Example: `nmmes ~/videos-to-convert/video.mkv --debug`
+
+---
+
 The `--watch` option places nmmes-cli in watch mode. The input directory will be watched for newly added video files and will process these videos.
 
 Type: Boolean<br>

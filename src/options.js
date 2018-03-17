@@ -53,12 +53,12 @@ const cliSpecificOptions = {
         normalize: true,
         group: 'General:'
     },
-    // 'debug': {
-    //     default: false,
-    //     describe: 'Enables debug mode. Prints extra debugging information.',
-    //     type: 'boolean',
-    //     group: 'Advanced:'
-    // },
+    'debug': {
+        default: false,
+        describe: 'Enables debug logging. Prints extra debugging information.',
+        type: 'boolean',
+        group: 'Advanced:'
+    },
     'delete': {
         default: false,
         describe: 'Delete source after encoding is complete and replaces it with new encode. [DANGER]',
@@ -117,7 +117,7 @@ export default async function load() {
     }
 
     if (cliArgs.debug) {
-        Logger.setLevel('trace');
+        Logger.level = 'trace';
     }
 
     let modules = await loadModules(cliArgs.modules);
@@ -199,7 +199,6 @@ async function extractModuleOptions(modules) {
     }
     return options;
 }
-
 
 import isUrl from 'is-url';
 import rp from 'request-promise-native';

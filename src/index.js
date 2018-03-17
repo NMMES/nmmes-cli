@@ -58,16 +58,16 @@ class VideoQueue {
                 }
             }
 
-            let destination;
+            let destinationDir;
             if (this.args.delete) {
-                destination = Path.join(Path.dirname(v.input.path), Path.basename(v.output.path))
+                destinationDir = Path.dirname(v.input.path), Path.basename(v.output.path)
             } else {
                 const relativeDirToInput = Path.dirname(Path.relative(this.args._[0], v.input.path));
                 const relativeDestinationDir = Path.resolve(this.args.destination, relativeDirToInput);
-                destination = Path.resolve(relativeDestinationDir, Path.basename(v.output.path));
+                destinationDir = relativeDestinationDir;
             }
 
-            if (await fs.exists(destination)) {
+            if (await fs.exists(Path.resolve(destinationDir, Path.basename(v.output.path)))) {
                 Logger.log(`Removing "${v.input.path}" from queue because destination file already exists.`);
                 this._loop();
                 return;
@@ -80,9 +80,10 @@ class VideoQueue {
                 await fs.remove(v.input.path);
             }
 
+            const destination = Path.resolve(destinationDir, Path.basename(v.output.path));
             if (await fs.exists(v.output.path)) {
-                Logger.trace(`Creating destination directory ${Path.dirname(destination)}.`);
-                await fs.ensureDir(Path.dirname(destination));
+                Logger.trace(`Creating destination directory ${destinationDir}.`);
+                await fs.ensureDir(destinationDir);
 
                 Logger.log(`Moving ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}... Wait for completion message.`);
                 fs.move(v.output.path, destination).then(() => Logger.log(`Moved ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}.`), err => {
@@ -99,6 +100,8 @@ class VideoQueue {
                 Logger.warn('Stopping because stop request receieved.');
                 return;
             }
+            Logger.error(e.message);
+            Logger.debug(e);
         }
         this._loop();
     }
@@ -148,9 +151,9 @@ class VideoQueue {
 
 })();
 
-import bluebird from 'bluebird';
+import util from 'util';
 import mime from 'mime';
-const recursive = bluebird.promisify(require('recursive-readdir'));
+const recursive = util.promisify(require('recursive-readdir'));
 
 function createVideo(path, modules, args) {
 

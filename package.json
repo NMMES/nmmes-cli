@@ -28,7 +28,6 @@
         "url": "https://github.com/NMMES/nmmes-cli.git"
     },
     "dependencies": {
-        "bluebird": "^3.5.1",
         "chalk": "^2.1.0",
         "chokidar": "^2.0.2",
         "fs-extra": "^4.0.2",
