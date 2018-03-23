@@ -120,9 +120,9 @@ export default async function load() {
 
     if (profile.depricated) {
         if (typeof profile.depricated === 'string') {
-            Logger.warn(profile.depricated);
+            Logger.warn(`[Profile: ${initialArgs.profile}]`, profile.depricated);
         } else {
-            Logger.warn("The use of this profile has been depricated, please use another profile.");
+            Logger.warn(`[Profile: ${initialArgs.profile}]`, "The use of this profile has been depricated, please use another profile.");
         }
     }
 
