@@ -1,0 +1,9 @@
+{
+    "options": {
+        "modules": ["encoder", "normalize"],
+        "encoder-quality": 20,
+        "encoder-preset": "fast",
+        "normalize-scale": 720,
+        "encoder-video-codec": "libx265"
+    }
+}
