@@ -167,15 +167,6 @@ async function loadModules(modules) {
 }
 
 async function requireModule(name) {
-    if (process.env.NODE_ENV === 'development') {
-        try {
-            let mod = requireg(Path.join(os.homedir(), '.config/yarn/link', name));
-            Logger.trace(`Module ${name} loaded from link directory.`);
-            return mod;
-        } catch (e) {
-            Logger.trace("Could not load module from link directory.", e);
-        }
-    }
     try {
         let mod = requireg(name);
         Logger.trace(`Loaded module ${name}.`);
