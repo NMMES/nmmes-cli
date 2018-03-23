@@ -116,6 +116,7 @@ class VideoQueue {
     } catch (e) {
         Logger.error(e.message);
         Logger.debug(e);
+        await Logger.flush();
         process.exit(1);
     }
 
