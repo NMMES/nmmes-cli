@@ -43,11 +43,10 @@ class VideoQueue {
         this._running = true;
         let v = this.queue.shift();
         if (typeof v === 'undefined') {
-            Logger.info('Video queue emptied.');
+            Logger.info('Processing queue emptied.');
             return this.stop();
         }
         try {
-
             if (this.args.s.length) {
                 await v._initialize();
                 const codecIdx = this.args.s.indexOf(v.input.metadata[0].format.video_codec);
@@ -127,12 +126,7 @@ class VideoQueue {
 
     let queue = new VideoQueue(args);
 
-    if (!args.watch) {
-        for (let path of await getVideoPaths(args._[0])) {
-            queue.append(createVideo(path, modules, args));
-        }
-        queue.start();
-    } else {
+    if (args.watch) {
         Logger.info(`Watching ${chalk.bold(args._[0])} for new video files...`);
         let watcher = chokidar.watch(args._[0], {
             ignoreInitial: true,
@@ -147,7 +141,13 @@ class VideoQueue {
             })
         });
         process.once('SIGINT', watcher.close.bind(watcher));
+        return;
     }
+
+    for (let path of await getVideoPaths(args._[0])) {
+        queue.append(createVideo(path, modules, args));
+    }
+    queue.start();
 
 })();
 
