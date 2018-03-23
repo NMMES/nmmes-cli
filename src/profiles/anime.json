@@ -2,6 +2,11 @@
     "options": {
         "modules": ["encoder", "normalize"],
         "encoder-bitdepth": 10,
+        "encoder-quality": 19,
         "encoder-preset": "medium"
-    }
+    },
+    "messages": [{
+        "level": "info",
+        "text": "This profile should only be used with raw high quality anime."
+    }]
 }

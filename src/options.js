@@ -104,46 +104,71 @@ export function getVersion() {
 }
 
 export default async function load() {
-    let cliArgs = yargs
+    let initialArgs = yargs
         .version(false)
         .help(false)
-        .usage('Usage: $0 [options] <file|directory>')
-        .options(cliSpecificOptions).argv;
+        .options({
+            profile: cliSpecificOptions.profile,
+            debug: cliSpecificOptions.debug
+        }).argv;
 
-
-    if (cliArgs.version) {
-        console.log(`${Package.name} ${getVersion()}\nModule Version: ${Module.MODULE_VERSION}`);
-        process.exit();
-    }
-
-    if (cliArgs.debug) {
+    if (initialArgs.debug) {
         Logger.level = 'trace';
     }
 
-    let modules = await loadModules(cliArgs.modules);
-    let options = await extractModuleOptions(modules);
+    let profile = await getProfile(initialArgs.profile);
 
-    if (cliArgs.profile) {
-        let profile = await getProfile(cliArgs.profile);
-
-        // QUESTION: Why doesn't Object.entries(profile.options) work when profile.options = {}?
-        for (let [key, value] of Object.entries(profile.options || {})) {
-            if (!options[key]) {
-                Logger.warn(`Option ${key} is not associated with an activated module.`);
-                continue;
-            }
-            options[key].default = value;
-            options[key].defaultSetBy = 'profile';
+    if (profile.depricated) {
+        if (typeof profile.depricated === 'string') {
+            Logger.warn(profile.depricated);
+        } else {
+            Logger.warn("The use of this profile has been depricated, please use another profile.");
         }
+    }
+
+    if (profile.messages)
+        for (const message of profile.messages) {
+            Logger[message.level](`[Profile: ${initialArgs.profile}]`, message.text);
+        }
+
+    if (profile.options && profile.options.modules) {
+        cliSpecificOptions.modules.default = profile.options.modules;
+        cliSpecificOptions.modules.defaultSetBy = 'profile';
     }
 
     let moduleArgs = yargs
         .version(false)
         .help(false)
+        .options({
+            modules: cliSpecificOptions.modules
+        }).argv;
+
+    let modules = await loadModules(moduleArgs.modules);
+    let options = Object.assign({}, cliSpecificOptions, await extractModuleOptions(modules));
+
+    for (let [key, value] of Object.entries(profile.options || {})) {
+        if (!options[key]) {
+            Logger.warn(`Option ${key} is not associated with an activated module.`);
+            continue;
+        }
+        options[key].default = value;
+        options[key].defaultSetBy = 'profile';
+    }
+
+    let args = yargs
+        .version(false)
+        .help(false)
         .strict()
         .usage('Usage: $0 file|directory [options]')
         .options(options).argv;
-    if (moduleArgs.help || moduleArgs._.length < 1) {
+
+
+    if (args.version) {
+        console.log(`${Package.name} ${getVersion()}\nModule Version: ${Module.MODULE_VERSION}`);
+        process.exit();
+    }
+
+    if (args.help || args._.length < 1) {
         console.log('Package:', Package.name, '\t', 'Version:', getVersion());
         console.log('Description:', Package.description);
         yargs.showHelp();
@@ -151,7 +176,7 @@ export default async function load() {
     }
 
     return {
-        args: moduleArgs,
+        args,
         modules
     };
 }
@@ -191,9 +216,6 @@ async function extractModuleOptions(modules) {
     return options;
 }
 
-import isUrl from 'is-url';
-import rp from 'request-promise-native';
-
 export function localProfiles() {
     let profiles = require.context('./profiles/', true, /\.json$/).keys();
     for (let idx in profiles) {
@@ -212,15 +234,14 @@ async function getProfile(profileLocation) {
         return profile;
     }
 
-    if (isUrl(profileLocation))
+    if (require('is-url')(profileLocation)) {
+        const fetch = require('node-fetch');
         try {
-            return await rp({
-                uri: profileLocation,
-                json: true
-            });
+            return await (await fetch(profileLocation)).json();
         } catch (e) {
             throw new Error(`Error retreiving profile: ${e.message}`);
         }
+    }
 
     if (fs.existsSync(profileLocation)) {
         return fs.readFile(profileLocation, (err, data) => {
@@ -269,11 +290,5 @@ async function getProfile(profileLocation) {
 //         describe: 'Take n screenshots at regular intervals throughout the finished encode.',
 //         type: 'number',
 //         group: 'Video:'
-//     },
-//     'stats': {
-//         default: false,
-//         describe: 'Output a stats file containing stats to this destination.',
-//         type: 'string',
-//         group: 'Advanced:'
 //     },
 // };
