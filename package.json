@@ -32,7 +32,7 @@
         "git-rev-sync": "^1.9.1",
         "is-url": "^1.2.3",
         "mime": "^2.0.3",
-        "nmmes-backend": "0.0.5",
+        "nmmes-backend": "0.0.8",
         "node-fetch": "^2.1.1",
         "recursive-readdir": "^2.2.2",
         "requireg": "^0.1.7",
