@@ -18,7 +18,7 @@
         "build": "npm run dist && npm run pack",
         "pack": "pkg -t latest-linux-x64,latest-win-x64 ./dist/package.json --out-path build",
         "profile": "node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt",
-        "postversion": "git push"
+        "postversion": "git push && npm publish"
     },
     "main": "dist/nmmes-cli.js",
     "repository": {
