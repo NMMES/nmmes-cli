@@ -9,9 +9,9 @@ let tempDir = path.join(os.tmpdir(), packageJson.name);
 fs.ensureDirSync(tempDir);
 let symLink = path.join(tempDir, 'node_modules');
 
-module.exports = function(env) {
-    env = env ? env : 'development';
-
+module.exports = function(env, options) {
+    env = options.mode ? options.mode : env ? env : 'development';
+    
     const output = env === 'production' ? path.resolve(__dirname, 'dist') : path.join(tempDir);
 
     if (env === 'development' && !fs.existsSync(symLink))
