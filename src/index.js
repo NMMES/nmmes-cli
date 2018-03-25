@@ -79,19 +79,32 @@ class VideoQueue {
                 await fs.remove(v.input.path);
             }
 
-            const destination = Path.resolve(destinationDir, Path.basename(v.output.path));
             if (await fs.exists(v.output.path)) {
                 Logger.trace(`Creating destination directory ${destinationDir}.`);
                 await fs.ensureDir(destinationDir);
 
-                Logger.log(`Moving ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}... Wait for completion message.`);
-                fs.move(v.output.path, destination).then(() => Logger.log(`Moved ${chalk.bold(v.output.path)} -> ${chalk.bold(destination)}.`), err => {
-                    throw err;
+                Logger.warn(`Moving ${chalk.bold(v.output.dir+Path.sep+'*')} -> ${chalk.bold(destinationDir)}... Wait for completion message.`);
+                fs.readdir(v.output.dir, async (err, files) => {
+                    if (err)
+                        return Logger.error(err);
+
+                    try {
+                        for (const file of files) {
+                            const src = Path.resolve(v.output.dir, file);
+                            const dest = Path.resolve(destinationDir, file);
+                            await fs.move(src, dest);
+                            Logger.trace(`Moved ${src} -> ${chalk.bold(dest)}.`);
+                        }
+                        Logger.warn(`${chalk.bold(v.output.dir+Path.sep+'*')} -> ${chalk.bold(destinationDir)}... Finished!`);
+                        await fs.remove(v.output.dir);
+                    } catch (e) {
+                        Logger.error(e);
+                    }
                 });
             }
         } catch (e) {
-            if (await fs.exists(v.output.path)) {
-                await fs.remove(v.output.path);
+            if (await fs.exists(v.output.dir)) {
+                await fs.remove(v.output.dir);
             }
             if (this._stopping) {
                 this._running = false;
@@ -158,8 +171,9 @@ const recursive = util.promisify(require('recursive-readdir'));
 
 function createVideo(path, modules, args) {
 
-    const outputBase = Path.basename(path, Path.extname(path)) + '.' + args.outputFormat;
-    const outputPath = Path.resolve(args.tempDirectory, outputBase);
+    const basename = Path.basename(path, Path.extname(path));
+    const outputBase = basename + '.' + args.outputFormat;
+    const outputPath = Path.resolve(args.tempDirectory, basename, outputBase);
 
     return new Video({
         input: {
