@@ -177,7 +177,7 @@ function createVideo(path, modules, args) {
                 return obj;
             }, {});
 
-            return new moduleClass(moduleOptions);
+            return new moduleClass(moduleOptions, Logger);
         })
     })
 }
