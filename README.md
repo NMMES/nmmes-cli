@@ -47,6 +47,8 @@ Only use this version for development work on nmmes-cli.
 npm install NMMES/nmmes-cli
 ```
 
+After installing nmmes-cli you will also need to install any modules you intend on using. See [https://github.com/NMMES/nmmes-cli/wiki/Modules](https://github.com/NMMES/nmmes-cli/wiki/Modules) for more information.
+
 ## Usage
 
 ### Basic
