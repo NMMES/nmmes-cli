@@ -95,7 +95,7 @@ class VideoQueue {
                             await fs.move(src, dest);
                             Logger.trace(`Moved ${src} -> ${chalk.bold(dest)}.`);
                         }
-                        Logger.warn(`${chalk.bold(v.output.dir+Path.sep+'*')} -> ${chalk.bold(destinationDir)}... Finished!`);
+                        Logger.info(`Moved ${chalk.bold(v.output.dir+Path.sep+'*')} -> ${chalk.bold(destinationDir)}`);
                         await fs.remove(v.output.dir);
                     } catch (e) {
                         Logger.error(e);
