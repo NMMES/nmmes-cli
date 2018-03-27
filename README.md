@@ -44,7 +44,7 @@ npm install --global nmmes-cli@next
 ##### Bleeding Edge
 Only use this version for development work on nmmes-cli.
 ```
-git clone https://github.com/NMMES/nmmes-cli.git && cd nmmes-cli && npm install
+npm install NMMES/nmmes-cli
 ```
 
 ## Usage
