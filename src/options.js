@@ -96,9 +96,13 @@ const cliSpecificOptions = {
 
 export function getVersion() {
     if (fs.existsSync('node_modules')) {
-        let path = Path.resolve(fs.realpathSync('node_modules'), '../');
-        let version = gitVer.branch(path) + '#' + gitVer.short(path);
-        return `(Development Build) ${version}`;
+        try {
+            let path = Path.resolve(fs.realpathSync('node_modules'), '../');
+            let version = gitVer.branch(path) + '#' + gitVer.short(path);
+            return `(Development Build) ${version}`;
+        } catch (e) {
+            Logger.trace(e);
+        }
     }
     return Package.version;
 }
