@@ -83,24 +83,20 @@ class VideoQueue {
                 Logger.trace(`Creating destination directory ${destinationDir}.`);
                 await fs.ensureDir(destinationDir);
 
-                Logger.warn(`Moving ${chalk.bold(v.output.dir+Path.sep+'*')} -> ${chalk.bold(destinationDir)}... Wait for completion message.`);
-                fs.readdir(v.output.dir, async (err, files) => {
-                    if (err)
-                        return Logger.error(err);
-
-                    try {
-                        for (const file of files) {
-                            const src = Path.resolve(v.output.dir, file);
-                            const dest = Path.resolve(destinationDir, file);
-                            await fs.move(src, dest);
-                            Logger.trace(`Moved ${src} -> ${chalk.bold(dest)}.`);
-                        }
-                        Logger.info(`Moved ${chalk.bold(v.output.dir+Path.sep+'*')} -> ${chalk.bold(destinationDir)}`);
-                        await fs.remove(v.output.dir);
-                    } catch (e) {
-                        Logger.error(e);
+                Logger.debug(`Moving ${chalk.bold(v.output.dir+Path.sep+'*')} -> ${chalk.bold(destinationDir)}...`);
+                const files = await fs.readdir(v.output.dir);
+                try {
+                    for (const file of files) {
+                        const src = Path.resolve(v.output.dir, file);
+                        const dest = Path.resolve(destinationDir, file);
+                        await fs.move(src, dest);
+                        Logger.trace(`Moved ${src} -> ${chalk.bold(dest)}.`);
                     }
-                });
+                    Logger.info(`Moved ${chalk.bold(v.output.dir+Path.sep+'*')} -> ${chalk.bold(destinationDir)}.`);
+                    await fs.remove(v.output.dir);
+                } catch (e) {
+                    Logger.error(e);
+                }
             }
         } catch (e) {
             if (await fs.exists(v.output.dir)) {
@@ -193,7 +189,7 @@ function createVideo(path, modules, args) {
 
             return new moduleClass(moduleOptions, Logger);
         })
-    })
+    }, Logger);
 }
 
 export async function getVideoPaths(path) {
