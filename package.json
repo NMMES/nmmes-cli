@@ -1,6 +1,6 @@
 {
     "name": "nmmes-cli",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "A command line interface front end for nmmes-backend.",
     "author": "Ayrton Sparling",
     "license": "LGPL-3.0",
