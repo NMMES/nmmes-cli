@@ -37,6 +37,7 @@
         "recursive-readdir": "^2.2.2",
         "requireg": "^0.1.7",
         "source-map-support": "^0.5.4",
+        "sudo-prompt": "^8.2.0",
         "yargs": "^11.0.0"
     },
     "devDependencies": {

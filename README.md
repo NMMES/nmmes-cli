@@ -117,6 +117,14 @@ Example: `nmmes ~/videos-to-convert/video.mkv --modules encoder sample`
 
 ---
 
+The `--install-modules` option globally installs any missing modules defined in `--modules`.
+
+Type: Boolean<br>
+Default: false<br>
+Example: `nmmes ~/videos-to-convert/video.mkv --modules encoder sample --install-modules`
+
+---
+
 The `--profile` option defines a url or name of an encoding preset. Enter `--profile list` to see a list of available local profiles or check the [github profiles directory](https://github.com/NMMES/nmmes-cli/tree/master/src/profiles).
 
 Type: String<br>

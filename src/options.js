@@ -6,6 +6,7 @@ import gitVer from 'git-rev-sync';
 import fs from 'fs-extra';
 import requireg from 'requireg';
 import chalk from 'chalk';
+import sudo from 'sudo-prompt';
 import {
     Module,
     Logger
@@ -66,10 +67,16 @@ const cliSpecificOptions = {
         group: 'Advanced:'
     },
     'modules': {
-        describe: 'List of modules to enable',
+        describe: 'List of modules to enable.',
         group: 'General:',
         type: 'array',
         default: ['normalize', 'encoder']
+    },
+    'install-modules': {
+        default: false,
+        describe: 'Globally installs missing modules. Will prompt for admin permission.',
+        group: 'Advanced:',
+        type: 'boolean',
     },
     'f': {
         alias: 'output-format',
@@ -144,10 +151,11 @@ export default async function load() {
         .version(false)
         .help(false)
         .options({
-            modules: cliSpecificOptions.modules
+            modules: cliSpecificOptions.modules,
+            'install-modules': cliSpecificOptions['install-modules'] // Install modules
         }).argv;
 
-    let modules = await loadModules(moduleArgs.modules);
+    let modules = await loadModules(moduleArgs.modules, moduleArgs.i);
     let options = Object.assign({}, cliSpecificOptions, await extractModuleOptions(modules));
 
     for (let [key, value] of Object.entries(profile.options || {})) {
@@ -185,25 +193,54 @@ export default async function load() {
     };
 }
 
-async function loadModules(modules) {
+async function loadModules(modules, install) {
     let loadedModules = {};
 
     for (let module of modules) {
         let mName = `nmmes-module-${module}`;
-        loadedModules[module] = await requireModule(mName);
+        loadedModules[module] = await requireModule(mName, install);
     }
     return loadedModules;
 }
 
-async function requireModule(name) {
+async function requireModule(name, install = false) {
     try {
-        let mod = requireg(name);
+        let mod;
+        try {
+            mod = requireg(name);
+        } catch (e) {
+            if (~e.stack.indexOf('Caused By: AssertionError [ERR_ASSERTION]: missing path') && install)
+                mod = await installModule(`${name}@${Module.MODULE_VERSION}`);
+            else
+                throw e;
+        }
         Logger.trace(`Loaded module ${name}.`);
         return mod;
     } catch (e) {
         Logger.trace(`Unable to require ${name}:`, e);
-        throw new Error(`Could not load ${name}@${Module.MODULE_VERSION}. Try installing it via "npm install --global ${name}@${Module.MODULE_VERSION}".`);
+        throw new Error(`Could not load ${name}@${Module.MODULE_VERSION}. Run again with the "--install-modules" flag or manual install it via "npm install --global ${name}@${Module.MODULE_VERSION}".`);
     }
+}
+
+async function installModule(name) {
+    const command = `npm install -g ${name}`;
+    Logger.info(`Installing ${name}...`);
+    Logger.trace(`Command: ${command}`);
+    let res = await new Promise((resolve, reject) => {
+        sudo.exec(command, {
+                name: "Node Modular Media Encoding System CLI"
+            },
+            function(error, stdout, stderr) {
+                if (error) return reject(error);
+                return resolve({
+                    stdout,
+                    stderr
+                });
+            }
+        );
+    });
+    Logger.trace(`Installed module ${name}:`, res.stdout);
+    return requireg(name);
 }
 
 async function extractModuleOptions(modules) {
