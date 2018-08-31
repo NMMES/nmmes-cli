@@ -99,6 +99,24 @@ const cliSpecificOptions = {
         type: 'boolean',
         group: 'Advanced:'
     },
+    'rpc-port': {
+        default: 0,
+        describe: 'Port number to listen for tcp http commands on. Set to 0 to disable.',
+        type: 'number',
+        group: 'Remote:'
+    },
+    'rpc-bind': {
+        default: 'localhost',
+        describe: 'Unix interface to listen for tcp commands on.',
+        type: 'string',
+        group: 'Remote:'
+    },
+    'rpc-socket': {
+        default: '',
+        describe: 'Unix socket to listen for tcp commands on. Leave empty to disable.',
+        type: 'string',
+        group: 'Remote:'
+    }
 };
 
 export function getVersion() {
@@ -180,7 +198,8 @@ export default async function load() {
         process.exit();
     }
 
-    if (args.help || args._.length < 1) {
+    if (args.help || (args._.length < 1 && !(args.rpcPort || args.rpcSocket))) {
+        await Logger.flush();
         console.log('Package:', Package.name, '\t', 'Version:', getVersion());
         console.log('Description:', Package.description);
         yargs.showHelp();
@@ -210,7 +229,7 @@ async function requireModule(name, install = false) {
             mod = requireg(name);
         } catch (e) {
             if (~e.stack.indexOf('Caused By: AssertionError [ERR_ASSERTION]: missing path') && install)
-                mod = await installModule(`${name}@${Module.MODULE_VERSION}`);
+                mod = await installModule(`${name}`);
             else
                 throw e;
         }
@@ -218,14 +237,14 @@ async function requireModule(name, install = false) {
         return mod;
     } catch (e) {
         Logger.trace(`Unable to require ${name}:`, e);
-        throw new Error(`Could not load ${name}@${Module.MODULE_VERSION}. Run again with the "--install-modules" flag or manual install it via "npm install --global ${name}@${Module.MODULE_VERSION}".`);
+        throw new Error(`Could not load ${name}. Run again with the "--install-modules" flag or manual install it via "npm install --global ${name}".`);
     }
 }
 
 async function installModule(name) {
     const command = `npm install -g ${name}`;
     Logger.info(`Installing ${name}...`);
-    Logger.trace(`Command: ${command}`);
+    Logger.trace(`Install Command: ${command}`);
     let res = await new Promise((resolve, reject) => {
         sudo.exec(command, {
                 name: "Node Modular Media Encoding System CLI"
@@ -326,10 +345,4 @@ async function getProfile(profileLocation) {
 //     //     type: 'number',
 //     //     group: 'Video:'
 //     // },
-//     'screenshots': {
-//         default: 0,
-//         describe: 'Take n screenshots at regular intervals throughout the finished encode.',
-//         type: 'number',
-//         group: 'Video:'
-//     },
 // };
