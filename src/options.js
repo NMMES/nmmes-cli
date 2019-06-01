@@ -287,14 +287,12 @@ async function extractModuleOptions(modules) {
 }
 
 export function localProfiles() {
-    if (!fs.existsSync('./profiles')) {
+    if (!fs.existsSync(Path.resolve(__dirname, './profiles'))) {
       Logger.debug("Local profiles directory \"./profiles\" not found!");
       return [];
     }
-    const profiles = fs.readdirSync('./profiles');
-    for (const idx in profiles) {
-        profiles[idx] = Path.basename(profiles[idx], '.json');
-    }
+    const profilePaths = fs.readdirSync(Path.resolve(__dirname, './profiles'));
+    const profiles = profilePaths.map(profilePath => Path.basename(profilePath, '.json'));
     return profiles;
 }
 
