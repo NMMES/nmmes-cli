@@ -8,7 +8,7 @@ import VideoQueue from './videoQueue';
 import RPC from './rpcServer';
 import {getVideoPaths, createVideo} from './utils';
 
-(async () => {
+export default async function run() {
     let options;
     try {
         options = await loadOptions();
@@ -30,7 +30,7 @@ import {getVideoPaths, createVideo} from './utils';
         Logger.info(`Watching ${chalk.bold(args._[0])} for new video files...`);
         let watcher = chokidar.watch(args._[0], {
             ignoreInitial: true,
-            ignored: /(^|[\/\\])\../,
+            ignored: /(^|[/\\])\../,
             awaitWriteFinish: true
         }).on('add', (path) => {
             getVideoPaths(path).then(paths => {
@@ -55,4 +55,4 @@ import {getVideoPaths, createVideo} from './utils';
         else
             await rpcServer.listen(args.rpcPort, args.rpcBind);
     }
-})();
+}

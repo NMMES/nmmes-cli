@@ -11,12 +11,8 @@
         "nmmes": "dist/nmmes-cli.js"
     },
     "scripts": {
-        "prepare": "npm run dist",
-        "test": "npm run dist && universalis-tester ./test/index.js",
-        "dev": "webpack-cli --mode=development --watch",
-        "dist": "webpack-cli --mode=production --progress",
-        "build": "npm run dist && npm run pack",
-        "pack": "pkg -t latest-linux-x64,latest-win-x64 ./dist/package.json --out-path build",
+        "test": "universalis-tester ./test/index.js",
+        "pack": "pkg -t latest-linux-x64,latest-win-x64 --out-path build",
         "profile": "node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt",
         "postversion": "git push && npm publish"
     },
@@ -28,33 +24,22 @@
     "dependencies": {
         "chalk": "^2.4.1",
         "chokidar": "^2.0.4",
+        "esm": "^3.0.84",
         "fs-extra": "^7.0.0",
         "git-rev-sync": "^1.12.0",
         "is-url": "^1.2.4",
         "mime": "^2.3.1",
         "nmmes-backend": "0.0.10",
-        "nmmes-simple-rpc": "github:NMMES/nmmes-simple-rpc",
+        "nmmes-simple-rpc": "^0.0.1",
         "node-fetch": "^2.2.0",
         "recursive-readdir": "^2.2.2",
         "requireg": "^0.2.1",
-        "source-map-support": "^0.5.9",
-        "sudo-prompt": "^8.2.0",
-        "yargs": "^12.0.1"
+        "sudo-prompt": "^8.2.3",
+        "yargs": "^12.0.2"
     },
     "devDependencies": {
-        "@babel/core": "^7.0.0",
-        "@babel/preset-env": "^7.0.0",
-        "babel-eslint": "^9.0.0",
-        "babel-loader": "^8.0.0",
-        "babel-plugin-lodash": "^3.3.4",
-        "babel-plugin-module-resolver": "^3.1.0",
-        "babel-plugin-transform-class-properties": "^6.24.1",
-        "eslint": "^5.4.0",
+        "eslint": "^5.7.0",
         "must": "^0.13.4",
-        "pkg": "^4.3.4",
-        "source-map-loader": "^0.2.4",
-        "webpack": "^4.17.1",
-        "webpack-cli": "^3.1.0",
-        "webpack-node-externals": "^1.7.2"
+        "pkg": "^4.3.4"
     }
 }

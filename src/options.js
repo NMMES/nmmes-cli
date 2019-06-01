@@ -62,7 +62,8 @@ const cliSpecificOptions = {
     },
     'delete': {
         default: false,
-        describe: 'Delete source after encoding is complete and replaces it with new encode. [DANGER]',
+        describe: 'Delete source after encoding is complete and replaces it with new encode.',
+        details: {DANGER: true},
         type: 'boolean',
         group: 'Advanced:'
     },
@@ -70,7 +71,7 @@ const cliSpecificOptions = {
         describe: 'List of modules to enable.',
         group: 'General:',
         type: 'array',
-        default: ['normalize', 'encoder']
+        default: []
     },
     'install-modules': {
         default: false,
@@ -145,6 +146,11 @@ export default async function load() {
         Logger.level = 'trace';
     }
 
+    if (initialArgs.version) {
+        console.log(`${Package.name} ${getVersion()}`);
+        process.exit();
+    }
+
     let profile = await getProfile(initialArgs.profile);
 
     if (profile.depricated) {
@@ -185,18 +191,22 @@ export default async function load() {
         options[key].defaultSetBy = 'profile';
     }
 
+    Object.values(options).map(option => {
+      const details = Object.entries(option.details || {}).map( ([k, v]) => {
+        if (v === true)
+          return `[${k}]`;
+        return `[${k}: ${v}]`;
+      } ).join(' ');
+      if (details.length)
+        option.describe += `\n${details}`;
+    });
+
     let args = yargs
         .version(false)
         .help(false)
         .strict()
         .usage('Usage: $0 file|directory [options]')
         .options(options).argv;
-
-
-    if (args.version) {
-        console.log(`${Package.name} ${getVersion()}\nModule Version: ${Module.MODULE_VERSION}`);
-        process.exit();
-    }
 
     if (args.help || (args._.length < 1 && !(args.rpcPort || args.rpcSocket))) {
         await Logger.flush();
@@ -277,8 +287,12 @@ async function extractModuleOptions(modules) {
 }
 
 export function localProfiles() {
-    let profiles = require.context('./profiles/', true, /\.json$/).keys();
-    for (let idx in profiles) {
+    if (!fs.existsSync('./profiles')) {
+      Logger.debug("Local profiles directory \"./profiles\" not found!");
+      return [];
+    }
+    const profiles = fs.readdirSync('./profiles');
+    for (const idx in profiles) {
         profiles[idx] = Path.basename(profiles[idx], '.json');
     }
     return profiles;
@@ -289,7 +303,7 @@ async function getProfile(profileLocation) {
         return {};
 
     if (~localProfiles().indexOf(profileLocation)) {
-        Logger.debug(`Built in profile "${profileLocation}" found!`);
+        Logger.debug(`Local profile "${profileLocation}" found!`);
         let profile = require('./profiles/' + profileLocation + '.json');
         return profile;
     }

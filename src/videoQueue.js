@@ -6,11 +6,10 @@ import Path from 'path';
 import fs from 'fs-extra';
 
 export default class VideoQueue {
-    queue = [];
-    args = {};
-    _stopping = false;
     constructor(args) {
         this.args = args;
+        this.queue = [];
+        this._stopping = false;
     }
     append(video) {
         this.queue.push(video);
