@@ -31,7 +31,7 @@
         "mime": "^2.3.1",
         "nmmes-backend": "0.0.10",
         "nmmes-simple-rpc": "^0.0.1",
-        "node-fetch": "^2.2.0",
+        "node-fetch": "^3.1.1",
         "recursive-readdir": "^2.2.2",
         "requireg": "^0.2.1",
         "sudo-prompt": "^8.2.3",
